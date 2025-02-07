@@ -1,6 +1,19 @@
 {
   "app": {
-    "signingConfigs": [],
+    "signingConfigs": [
+      {
+        "name": "default",
+        "material": {
+          "certpath": "C:/Users/chens/.ohos/config/openharmony/default_app-OniroNews_oZDbnOkZ-SvFRufzRKcj9pmLLy11zBQ0H0rAFedKhJY=.cer",
+          "storePassword": "0000001AD26FAD8E20DF5F9BA640D9EEF823B322A4F2842289E184F7794A5A12A7425D73206B5CD4ACBF",
+          "keyAlias": "debugKey",
+          "keyPassword": "0000001A1318C2716E3ECF2B31B3864753E12608519B83804C5C1FF6C28D29C55507A85D4566BF3E53BE",
+          "profile": "C:/Users/chens/.ohos/config/openharmony/default_app-OniroNews_oZDbnOkZ-SvFRufzRKcj9pmLLy11zBQ0H0rAFedKhJY=.p7b",
+          "signAlg": "SHA256withECDSA",
+          "storeFile": "C:/Users/chens/.ohos/config/openharmony/default_app-OniroNews_oZDbnOkZ-SvFRufzRKcj9pmLLy11zBQ0H0rAFedKhJY=.p12"
+        }
+      }
+    ],
     "products": [
       {
         "name": "default",

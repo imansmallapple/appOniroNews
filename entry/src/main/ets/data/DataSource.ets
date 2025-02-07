@@ -1,0 +1,72 @@
+import http from '@ohos.net.http'
+import abilityTest from '../../../ohosTest/ets/test/Ability.test'
+import { NewsResponse } from '../model/news'
+import { BusinessError } from '@ohos.base'
+import hilog from '@ohos.hilog'
+
+const BaseUrl = 'https://api.currentsapi.services'
+const key = 'Eg_5qbw7G1byzAwGqffkMLnp61rDmuDqqjc0ekYmgsyMgF6y'
+const LatestNewsUrl = BaseUrl + '/v1/latest-news'
+const SearchNews = BaseUrl + '/v1/search'
+
+
+export class DataSource {
+  constructor() {
+  }
+
+  async getLatestNews(language: string): Promise<NewsResponse> {
+    return new Promise<NewsResponse>((resolve, reject) => {
+      let httpRequest = http.createHttp()
+      httpRequest.request(LatestNewsUrl + `?language=${language}&apiKey=${key}`,
+        {
+          method: http.RequestMethod.GET,
+          readTimeout: 30000,
+          connectTimeout: 30000,
+        },
+        (err: BusinessError, data: http.HttpResponse) => {
+          if (!err) {
+            try {
+              let responseData: NewsResponse = JSON.parse(data.result as string)
+              resolve(responseData)
+            } catch (error) {
+              reject('Failed to parse response data')
+            }
+            finally {
+              httpRequest.off('headersReceive');
+              httpRequest.destroy();
+            }
+          } else {
+            reject('Error: ' + err)
+          }
+        })
+    })
+  }
+
+  async searchNews(language: string, keyword: string, type: number, page_number?: number): Promise<NewsResponse> {
+    return new Promise<NewsResponse>((resolve, reject) => {
+      let httpRequest = http.createHttp()
+      httpRequest.request(SearchNews + `?language=${language}&keyword=${keyword}&type=${type}&apiKey=${key}`,
+        {
+          method: http.RequestMethod.GET,
+          readTimeout: 30000,
+          connectTimeout: 30000,
+        },
+        (err: BusinessError, data: http.HttpResponse) => {
+          if (!err) {
+            try {
+              let responseData: NewsResponse = JSON.parse(data.result as string)
+              resolve(responseData)
+            } catch (error) {
+              reject('Failed to parse response data')
+            }
+            finally {
+              httpRequest.off('headersReceive');
+              httpRequest.destroy();
+            }
+          } else {
+            reject('Error: ' + err)
+          }
+        })
+    })
+  }
+}
