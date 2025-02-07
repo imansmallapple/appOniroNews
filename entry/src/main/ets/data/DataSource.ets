@@ -3,6 +3,7 @@ import abilityTest from '../../../ohosTest/ets/test/Ability.test'
 import { NewsResponse } from '../model/news'
 import { BusinessError } from '@ohos.base'
 import hilog from '@ohos.hilog'
+import { CategoryResponse } from '../model/categories'
 
 const BaseUrl = 'https://api.currentsapi.services'
 const key = 'Eg_5qbw7G1byzAwGqffkMLnp61rDmuDqqjc0ekYmgsyMgF6y'
@@ -14,10 +15,10 @@ export class DataSource {
   constructor() {
   }
 
-  async getLatestNews(language: string): Promise<NewsResponse> {
+  async getLatestNews(language: string, category?: string): Promise<NewsResponse> {
     return new Promise<NewsResponse>((resolve, reject) => {
       let httpRequest = http.createHttp()
-      httpRequest.request(LatestNewsUrl + `?language=${language}&apiKey=${key}`,
+      httpRequest.request(LatestNewsUrl + `?language=${language}&apiKey=${key}` + (category ? `&category=${category}` : ''),
         {
           method: http.RequestMethod.GET,
           readTimeout: 30000,
@@ -55,6 +56,34 @@ export class DataSource {
           if (!err) {
             try {
               let responseData: NewsResponse = JSON.parse(data.result as string)
+              resolve(responseData)
+            } catch (error) {
+              reject('Failed to parse response data')
+            }
+            finally {
+              httpRequest.off('headersReceive');
+              httpRequest.destroy();
+            }
+          } else {
+            reject('Error: ' + err)
+          }
+        })
+    })
+  }
+
+  async getCategories(): Promise<CategoryResponse> {
+    return new Promise<CategoryResponse>((resolve, reject) => {
+      let httpRequest = http.createHttp()
+      httpRequest.request(BaseUrl + '/v1/available/categories',
+        {
+          method: http.RequestMethod.GET,
+          readTimeout: 30000,
+          connectTimeout: 30000,
+        },
+        (err: BusinessError, data: http.HttpResponse) => {
+          if (!err) {
+            try {
+              let responseData: CategoryResponse = JSON.parse(data.result as string)
               resolve(responseData)
             } catch (error) {
               reject('Failed to parse response data')
