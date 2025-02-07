@@ -2,6 +2,7 @@ import { DataSource } from '../data/DataSource'
 import { NewsResponse, News } from '../model/news'
 import hilog from '@ohos.hilog'
 import { CategoryResponse } from '../model/categories'
+import router from '@ohos.router'
 
 @Entry
 @Component
@@ -93,6 +94,12 @@ struct Index {
                 .width('100%')
                 .margin({ bottom: 40 })
               }
+              .onClick(() => {
+                router.pushUrl({
+                  url: "pages/NewsDetail",
+                  params: item
+                })
+              })
             })
           }
 
