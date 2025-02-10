@@ -43,10 +43,10 @@ export class DataSource {
     })
   }
 
-  async searchNews(language: string, keyword: string, type: number, page_number?: number): Promise<NewsResponse> {
+  async searchNews(language: string, keywords: string, type: number, page_number?: number): Promise<NewsResponse> {
     return new Promise<NewsResponse>((resolve, reject) => {
       let httpRequest = http.createHttp()
-      httpRequest.request(SearchNews + `?language=${language}&keyword=${keyword}&type=${type}&apiKey=${key}`,
+      httpRequest.request(SearchNews + `?language=${language}&keywords=${keywords}&type=${type}&apiKey=${key}`,
         {
           method: http.RequestMethod.GET,
           readTimeout: 30000,
