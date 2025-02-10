@@ -3,6 +3,7 @@ import { NewsResponse, News } from '../model/news'
 import hilog from '@ohos.hilog'
 import { CategoryResponse } from '../model/categories'
 import router from '@ohos.router'
+import { timeFormatModify } from '../utils/timeUtil'
 
 @Entry
 @Component
@@ -71,28 +72,61 @@ struct Index {
                   Column() {
                     Image(item.image)
                       .width('100%')
-
-                    Text(item.title)
-                      .fontSize(20)
-                      .fontColor(Color.White)
-                      .fontWeight(700)
+                      .objectFit(ImageFit.Contain)
+                      .borderRadius({ topLeft: 10, topRight: 10 })
+                    Row() {
+                      Text(item.title)
+                        .fontSize(20)// .fontColor(Color.White)
+                        .fontWeight(700)
+                    }
+                    .width('100%')
+                    .padding(10)
                   }
                   .width('100%')
 
-                  Column({ space: 10 }) {
+                  Row({ space: 10 }) {
                     Text(item.author)
                       .fontSize(15)
-                      .fontColor(Color.White)
+                      .fontWeight(FontWeight.Normal)
+                      .fontColor('#56000000')
+                      .padding(10)
+                    // .fontColor(Color.White)
 
-                    Text(item.published)
-                      .fontSize(15)
-                      .fontColor(Color.White)
+                    Row() {
+                      Text(timeFormatModify(item.published))
+                        .fontSize(15)
+                        .fontColor('#56000000')
+                    }
+                    .layoutWeight(1)
+                    .justifyContent(FlexAlign.End)
+                    .padding(10)
+
+                    // .fontColor(Color.White)
                   }
-                  .alignItems(HorizontalAlign.Start)
+                  .justifyContent(FlexAlign.Start)
+                  // .alignItems(HorizontalAlign.Start)
                   .width('100%')
+
+                  // Description
+                  Row() {
+                    Text(item.description)
+                      .width('100%')
+                  }
+                  .padding(10)
+
+                  Row({ space: 10 }) {
+                    Image($r('app.media.icon_not_stared'))
+                      .width(25)
+                    Image($r('app.media.icon_link'))
+                      .width(20)
+                  }
+                  .width('100%')
+                  .height('7%')
+                  .justifyContent(FlexAlign.Start)
+                  .alignItems(VerticalAlign.Center)
+                  .margin({ left: 10 })
                 }
                 .width('100%')
-                .margin({ bottom: 40 })
               }
               .onClick(() => {
                 router.pushUrl({
@@ -100,8 +134,12 @@ struct Index {
                   params: item
                 })
               })
+              .margin({ bottom: 40 })
+              .backgroundColor('#ffe4f3f3')
+              .borderRadius(10)
             })
           }
+          .width('90%')
 
           // Image
 
@@ -112,13 +150,16 @@ struct Index {
           // Publish time
 
         }
+        .width('100%')
+        .alignItems(HorizontalAlign.Center)
       }
       .width('100%')
-      .height('88%')
+      .height('93%')
       .align(Alignment.Top)
       .zIndex(0)
     }
     .width('100%')
-    .backgroundColor(Color.Black)
+
+    // .backgroundColor(Color.Black)
   }
 }
