@@ -98,4 +98,24 @@ export class DataSource {
         })
     })
   }
+
+  async fetchHttpCode(): Promise<number> {
+    try {
+      let httpRequest = http.createHttp();
+      const response = await new Promise<number>((resolve, reject) => {
+        httpRequest.request(LatestNewsUrl + `?language=en&apiKey=${key}`,
+          (err: Error, data: http.HttpResponse) => {
+            if (!err) {
+              resolve(data.responseCode);
+            } else {
+              reject(err);
+            }
+          });
+      });
+      return response;
+    } catch (error) {
+      console.error('Error fetching HTTP code:', error);
+      return -1;
+    }
+  }
 }
