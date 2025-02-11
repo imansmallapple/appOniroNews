@@ -21,9 +21,9 @@ struct Index {
   private scroller: Scroller = new Scroller()
 
   async aboutToAppear(): Promise<void> {
+    this.isLoading = true
     this.source.fetchHttpCode().then(async (code) => {
       this.httpCode = code
-      this.isLoading = true
       if (code === 200) {
         this.isLoading = false
         this.isHttpError = false
@@ -32,6 +32,7 @@ struct Index {
         let res2: CategoryResponse = await this.source.getCategories()
         this.categories = res2.categories
       } else {
+        this.isLoading = false
         this.isHttpError = true
         console.error('Failed to fetch data: HTTP Code', code);
       }
@@ -96,52 +97,63 @@ struct Index {
 
   build() {
     if (this.isHttpError) {
-      Stack() {
-        HttpErrorComponent()
+      if (this.isLoading) {
         Column() {
-          Text('Retry')
-            .fontSize(25)
-            .fontWeight(700)
+          LoadComponent()
         }
-        .width('20%')
-        .height(50)
-        .zIndex(1)
-        .margin({ top: '30%' })
-        .borderWidth(2)
-        .borderRadius(20)
+        .width('100%')
+        .height('100%')
         .justifyContent(FlexAlign.Center)
-        .onTouch((event: TouchEvent) => {
-          if (event.type == TouchType.Down) {
-            this.retryButtonColor = '#68e7dada'
+        .alignItems(HorizontalAlign.Center)
+      }
+      else {
+        Stack() {
+          HttpErrorComponent()
+          Column() {
+            Text('Retry')
+              .fontSize(25)
+              .fontWeight(700)
           }
-          if (event.type == TouchType.Up) {
-            this.retryButtonColor = ''
-          }
-        })
-        .backgroundColor(this.retryButtonColor)
-        .onClick(() => {
-          this.source.fetchHttpCode().then(async (code) => {
-            this.httpCode = code
-            this.isLoading = true
-            if (code === 200) {
-              this.isLoading = false
-              this.isHttpError = false
-              let res1: NewsResponse = await this.source.getLatestNews('en')
-              this.latestNews = res1.news
-              let res2: CategoryResponse = await this.source.getCategories()
-              this.categories = res2.categories
-            } else {
-              this.isLoading = false
-              this.isHttpError = true
-              console.error('Failed to fetch data: HTTP Code', code);
+          .width('20%')
+          .height(50)
+          .zIndex(1)
+          .margin({ top: '30%' })
+          .borderWidth(2)
+          .borderRadius(20)
+          .justifyContent(FlexAlign.Center)
+          .onTouch((event: TouchEvent) => {
+            if (event.type == TouchType.Down) {
+              this.retryButtonColor = '#68e7dada'
+            }
+            if (event.type == TouchType.Up) {
+              this.retryButtonColor = ''
             }
           })
-          Log.info('isLoading: ', this.isLoading)
-        })
+          .backgroundColor(this.retryButtonColor)
+          .onClick(() => {
+            this.isLoading = true
+            this.source.fetchHttpCode().then(async (code) => {
+              this.httpCode = code
+              if (code === 200) {
+                this.isLoading = false
+                this.isHttpError = false
+                let res1: NewsResponse = await this.source.getLatestNews('en')
+                this.latestNews = res1.news
+                let res2: CategoryResponse = await this.source.getCategories()
+                this.categories = res2.categories
+              } else {
+                this.isLoading = false
+                this.isHttpError = true
+                console.error('Failed to fetch data: HTTP Code', code);
+              }
+            })
+            // Log.info('isLoading: ', this.isLoading)
+          })
+        }
+        .width('100%')
+        .height('100%')
+        .align(Alignment.Center)
       }
-      .width('100%')
-      .height('100%')
-      .align(Alignment.Center)
     }
     else {
       Stack() {
