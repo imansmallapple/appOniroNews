@@ -169,7 +169,7 @@ struct SearchPage {
           .textFont({ size: 14, weight: 400 })
           .borderColor(this.searchBarBorderColor)
           .borderWidth(2)
-          .fontColor(Color.White)
+          .fontColor(this.txtColor)
           .onChange((value: string) => {
             this.searchValue = value
           })
