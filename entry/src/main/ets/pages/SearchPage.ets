@@ -6,6 +6,7 @@ import Log from '../utils/Log'
 import { Callback } from '@ohos.base'
 import { LoadComponent, EmptyComponent } from '../component/components'
 import { spaceToPlus } from '../utils/searchUtil'
+import Storage from '../preference/Storage'
 
 @Entry
 @Component
@@ -13,7 +14,7 @@ struct SearchPage {
   // Search
   @State searchValue: string = ''
   @State isSearched: boolean = false
-  @State searchedNews: News[] = []
+  @State @Watch('checkLoading') searchedNews: News[] = []
   private searchController: SearchController = new SearchController()
   private source = new DataSource()
   private searchResultCategory: string[] = ['news', 'articles', 'discussion']
@@ -21,22 +22,65 @@ struct SearchPage {
   @State newsCount: number = 0
   @State articlesCount: number = 0
   @State discussionCount: number = 0
-  @State cate1TextColor: string = '#b0ffffff'
-  @State cate2TextColor: string = '#b0ffffff'
-  @State cate3TextColor: string = '#b0ffffff'
-  @State cate1BgColor: string = ''
-  @State cate2BgColor: string = ''
-  @State cate3BgColor: string = ''
+  @State cate1TextColor: string = '#56000000'
+  @State cate2TextColor: string = '#56000000'
+  @State cate3TextColor: string = '#56000000'
+  @State cate1TextFont: number = FontWeight.Medium
+  @State cate2TextFont: number = FontWeight.Medium
+  @State cate3TextFont: number = FontWeight.Medium
+  @State cate1BgColor: string = '#ffe4f3f3'
+  @State cate2BgColor: string = '#ffe4f3f3'
+  @State cate3BgColor: string = '#ffe4f3f3'
   @State searchButtonColor: string = ''
   @State backButtonColor: string = ''
   @State isLoading: boolean = false
   @State isEmpty: boolean = false
   @State @Watch('checkLoading') searchNewsLen: number = 0
+  @State isCateSelected: boolean = false
+  @State isTouch: boolean = false
+  //Preferences
+  private localStorage = new Storage()
+  @State style: string[] = []
+  @State bgColor: string = '#ffffffff'
+  @State txtColor: string = '#ff000000'
+  @State cardColor: string = '#ffe4f3f3'
+  @State authorTimeColor: string = '#56000000'
+  @State cateTxtColor: string = '#56000000'
+  @State cateBgColor: string = '#fff5f1f1'
+  @State searchBarBgColor: string = '#ffffffff'
+  @State searchBarPlaceholderColor: string = '#b0918383'
+  @State searchBarBorderColor: string = '#46000000'
+  @State topBarBgColor: string = '#ffe4f3f3'
+  @State isBlack: boolean = false
+
+  async aboutToAppear(): Promise<void> {
+    let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
+    if (temp.length !== 0) {
+      this.bgColor = temp[temp.length-10]
+      this.txtColor = temp[temp.length-9]
+      this.cardColor = temp[temp.length-8]
+      this.authorTimeColor = temp[temp.length-7]
+      this.cateTxtColor = temp[temp.length-6]
+      this.cateBgColor = temp[temp.length-5]
+      this.searchBarBgColor = temp[temp.length-4]
+      this.searchBarPlaceholderColor = temp[temp.length-3]
+      this.searchBarBorderColor = temp[temp.length-2]
+      this.topBarBgColor = temp[temp.length-1]
+      if (temp[temp.length-10] == '#ff000000') {
+        this.isBlack = true
+      } else if (temp[temp.length-10] == '#ffffffff') {
+        this.isBlack = false
+      }
+    } else {
+      this.isBlack = false
+    }
+    Log.info('isBlack', this.isBlack)
+  }
 
   async searchNews(keyword: string) {
     let res: NewsResponse = await this.source.searchNews('en', keyword, 1)
-    this.searchedNews = res.news
     this.searchNewsLen = this.searchedNews.length
+    this.searchedNews = res.news
     this.newsCount = res.news.length
 
     if (this.newsCount == 0) {
@@ -90,20 +134,26 @@ struct SearchPage {
   build() {
     Column() {
       Row({ space: 5 }) {
-        Image($r('app.media.icon_back'))
-          .width(30)
-          .onTouch((event: TouchEvent) => {
-            if (event.type == TouchType.Down) {
-              this.backButtonColor = '#b0514f4f'
-            }
-            if (event.type == TouchType.Up) {
-              this.backButtonColor = ''
-            }
-          })
-          .onClick(() => {
-            router.back()
-          })
-          .backgroundColor(this.backButtonColor)
+        Row() {
+          Image(this.isBlack ? $r('app.media.icon_back_white') : $r('app.media.icon_back_black'))
+            .width(20)
+        }
+        .width(30)
+        .height(30)
+        .borderRadius(20)
+        .margin({ left: 5 })
+        .onTouch((event: TouchEvent) => {
+          if (event.type == TouchType.Down) {
+            this.backButtonColor = this.cateBgColor
+          }
+          if (event.type == TouchType.Up) {
+            this.backButtonColor = ''
+          }
+        })
+        .onClick(() => {
+          router.back()
+        })
+        .backgroundColor(this.backButtonColor)
 
         Search({
           value: this.searchValue,
@@ -113,11 +163,11 @@ struct SearchPage {
           .focusable(true)
           .width('75%')
           .height(40)
-          .backgroundColor('#c8181818')
-          .placeholderColor('#b0ffffff')
+          .backgroundColor(this.searchBarBgColor)
+          .placeholderColor(this.searchBarPlaceholderColor)
           .placeholderFont({ size: 14, weight: 400 })
           .textFont({ size: 14, weight: 400 })
-          .borderColor('#46ffffff')
+          .borderColor(this.searchBarBorderColor)
           .borderWidth(2)
           .fontColor(Color.White)
           .onChange((value: string) => {
@@ -140,10 +190,12 @@ struct SearchPage {
         .justifyContent(FlexAlign.Center)
         .layoutWeight(1)
         .borderRadius(20)
+        // .borderWidth(2)
+        // .borderColor(this.searchBarBorderColor)
         .backgroundColor(this.searchButtonColor)
         .onTouch((event: TouchEvent) => {
           if (event.type == TouchType.Down) {
-            this.searchButtonColor = '#b0514f4f'
+            this.searchButtonColor = this.cateBgColor
           }
           if (event.type == TouchType.Up) {
             this.searchButtonColor = ''
@@ -152,19 +204,20 @@ struct SearchPage {
         .onClick(() => {
           this.isSearched = true
           this.isLoading = true
+          this.isCateSelected = false
           this.searchNews(spaceToPlus(this.searchValue))
           this.loadSearchCategoryCounts(spaceToPlus(this.searchValue))
           // Log.info('LinkedString', spaceToPlus(this.searchValue))
         })
       }
       .padding(5)
+      .backgroundColor(this.topBarBgColor)
 
       if (this.isLoading) {
         LoadComponent()
       } else {
         Row() {
           List() {
-            // todo: 搜索之后再显示结果栏， 更换浅点的背景颜色，去掉边框
             ForEach(this.searchResultCategory, (item: string, number: number) => {
               ListItem() {
                 Column() {
@@ -172,58 +225,74 @@ struct SearchPage {
                     .fontWeight(FontWeight.Bold)
                     .fontSize(20)
                     .onClick(() => {
+                      this.isCateSelected = true
                       if (number == 0) {
                         this.searchNews(spaceToPlus(this.searchValue))
-                        this.cate2TextColor = '#b0ffffff'
-                        this.cate3TextColor = '#b0ffffff'
+                        this.cate2TextColor = this.cateTxtColor
+                        this.cate3TextColor = this.cateTxtColor
                         this.cate1TextColor = '#fffa6f6f'
+
+                        this.cate2TextFont = FontWeight.Medium
+                        this.cate3TextFont = FontWeight.Medium
+                        this.cate1TextFont = FontWeight.Bold
                       }
                       else if (number == 1) {
                         this.searchArticles(spaceToPlus(this.searchValue))
-                        this.cate1TextColor = '#b0ffffff'
-                        this.cate3TextColor = '#b0ffffff'
+                        this.cate1TextColor = this.cateTxtColor
+                        this.cate3TextColor = this.cateTxtColor
                         this.cate2TextColor = '#fffa6f6f'
+
+                        this.cate1TextFont = FontWeight.Medium
+                        this.cate3TextFont = FontWeight.Medium
+                        this.cate2TextFont = FontWeight.Bold
                       }
                       else if (number == 2) {
                         this.searchDiscussion(spaceToPlus(this.searchValue))
-                        this.cate1TextColor = '#b0ffffff'
-                        this.cate2TextColor = '#b0ffffff'
+                        this.cate1TextColor = this.cateTxtColor
+                        this.cate2TextColor = this.cateTxtColor
                         this.cate3TextColor = '#fffa6f6f'
+
+                        this.cate1TextFont = FontWeight.Medium
+                        this.cate2TextFont = FontWeight.Medium
+                        this.cate3TextFont = FontWeight.Bold
                       }
                       else {
                         Log.info('Trigger no content result')
                       }
-                    })
-                    .fontColor(number == 0 ? this.cate1TextColor : (number == 1 ? this.cate2TextColor : this.cate3TextColor))
+                    })// .fontColor(this.cateTxtColor)
+                    .fontColor(!this.isCateSelected ? this.cateTxtColor : (number == 0 ? this.cate1TextColor : (number == 1 ? this.cate2TextColor : this.cate3TextColor)))
+                    .fontWeight(!this.isCateSelected ? FontWeight.Medium : (number == 0 ? this.cate1TextFont : (number == 1 ? this.cate2TextFont : this.cate3TextFont)))
                 }
                 .onTouch((event: TouchEvent) => {
+                  this.isTouch = true
                   if (event.type == TouchType.Down) {
                     if (number == 0) {
-                      this.cate1BgColor = '#b0514f4f'
-                      this.cate2BgColor = ''
-                      this.cate3BgColor = ''
+                      this.cate1BgColor = this.cateBgColor
+                      this.cate2BgColor = this.topBarBgColor
+                      this.cate3BgColor = this.topBarBgColor
                     }
                     else if (number == 1) {
-                      this.cate1BgColor = ''
-                      this.cate2BgColor = '#b0514f4f'
-                      this.cate3BgColor = ''
+                      this.cate1BgColor = this.topBarBgColor
+                      this.cate2BgColor = this.cateBgColor
+                      this.cate3BgColor = this.topBarBgColor
                     }
                     else if (number == 2) {
-                      this.cate1BgColor = ''
-                      this.cate2BgColor = ''
-                      this.cate3BgColor = '#b0514f4f'
+                      this.cate1BgColor = this.topBarBgColor
+                      this.cate2BgColor = this.topBarBgColor
+                      this.cate3BgColor = this.cateBgColor
                     }
                   }
                   if (event.type == TouchType.Up) {
-                    this.cate1BgColor = ''
-                    this.cate2BgColor = ''
-                    this.cate3BgColor = ''
+                    this.isTouch = false
+                    this.cate1BgColor = this.topBarBgColor
+                    this.cate2BgColor = this.topBarBgColor
+                    this.cate3BgColor = this.topBarBgColor
                   }
                 })
-                .backgroundColor(number == 0 ? this.cate1BgColor : (number == 1 ? this.cate2BgColor : this.cate3BgColor))
+                .backgroundColor(!this.isTouch ? this.topBarBgColor : (number == 0 ? this.cate1BgColor : (number == 1 ? this.cate2BgColor : this.cate3BgColor)))
                 .justifyContent(FlexAlign.Center)
                 .alignItems(HorizontalAlign.Center)
-                .width('33%')
+                .width('33.3%')
                 .height(40)
               }
             })
@@ -233,6 +302,7 @@ struct SearchPage {
         .alignItems(VerticalAlign.Center)
         .width('100%')
         .height(40)
+        .margin({ bottom: 5 })
 
         if (!this.isEmpty) {
           Column() {
@@ -251,7 +321,7 @@ struct SearchPage {
                             Text(item.title)
                               .fontSize(20)
                               .fontWeight(700)
-                              .fontColor(Color.White)
+                              .fontColor(this.txtColor)
                           }
                           .width('100%')
                           .padding(10)
@@ -269,19 +339,8 @@ struct SearchPage {
                         Text(item.author)
                           .fontSize(15)
                           .fontWeight(FontWeight.Normal)
-                          .fontColor('#56000000')
                           .padding(10)
-                          .fontColor(Color.White)
-
-                        Row() {
-                          Text(timeFormatModify(item.published))
-                            .fontSize(15)
-                            .fontColor(Color.White)
-                        }
-                        .layoutWeight(1)
-                        .justifyContent(FlexAlign.End)
-                        .padding(10)
-
+                          .fontColor(this.authorTimeColor)
                       }
                       .justifyContent(FlexAlign.Start)
                       .width('100%')
@@ -290,7 +349,7 @@ struct SearchPage {
                       Row() {
                         Text(item.description)
                           .width('100%')
-                          .fontColor(Color.White)
+                          .fontColor(this.txtColor)
                       }
                       .padding(10)
 
@@ -299,6 +358,15 @@ struct SearchPage {
                           .width(25)
                         Image($r('app.media.icon_link'))
                           .width(20)
+
+                        Row() {
+                          Text(timeFormatModify(item.published))
+                            .fontSize(15)
+                            .fontColor(this.authorTimeColor)
+                        }
+                        .layoutWeight(1)
+                        .justifyContent(FlexAlign.End)
+                        .padding(10)
                       }
                       .width('100%')
                       .height('7%')
@@ -309,7 +377,7 @@ struct SearchPage {
                     .width('100%')
                   }
                   .margin({ bottom: 40 })
-                  .backgroundColor('#ff3b3a3a')
+                  .backgroundColor(this.cardColor)
                   .borderRadius(10)
                 })
               }
@@ -326,6 +394,6 @@ struct SearchPage {
     }
     .width('100%')
     .height('100%')
-    .backgroundColor(Color.Black)
+    .backgroundColor(this.bgColor)
   }
 }

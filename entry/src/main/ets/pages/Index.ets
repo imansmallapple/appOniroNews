@@ -6,6 +6,7 @@ import router from '@ohos.router'
 import { timeFormatModify } from '../utils/timeUtil'
 import { HttpErrorComponent, LoadComponent } from '../component/components'
 import Log from '../utils/Log'
+import Storage from '../preference/Storage'
 
 @Entry
 @Component
@@ -19,8 +20,43 @@ struct Index {
   private source = new DataSource()
   // List
   private scroller: Scroller = new Scroller()
+  //Preferences
+  private localStorage = new Storage()
+  @State style: string[] = []
+  @State bgColor: string = '#ffffffff'
+  @State txtColor: string = '#ff000000'
+  @State cardColor: string = '#ffe4f3f3'
+  @State authorTimeColor: string = '#56000000'
+  @State cateTxtColor: string = '#56000000'
+  @State cateBgColor: string = '#fff5f1f1'
+  @State searchBarBgColor: string = '#ffffffff'
+  @State searchBarPlaceholderColor: string = '#b0918383'
+  @State searchBarBorderColor: string = '#46000000'
+  @State topBarBgColor: string = '#ffe4f3f3'
+  @State isBlack: boolean = false
 
   async aboutToAppear(): Promise<void> {
+    let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
+    if (temp.length !== 0) {
+      this.bgColor = temp[temp.length-10]
+      this.txtColor = temp[temp.length-9]
+      this.cardColor = temp[temp.length-8]
+      this.authorTimeColor = temp[temp.length-7]
+      this.cateTxtColor = temp[temp.length-6]
+      this.cateBgColor = temp[temp.length-5]
+      this.searchBarBgColor = temp[temp.length-4]
+      this.searchBarPlaceholderColor = temp[temp.length-3]
+      this.searchBarBorderColor = temp[temp.length-2]
+      this.topBarBgColor = temp[temp.length-1]
+      if (this.bgColor == '#ff000000') {
+        this.isBlack = true
+      } else if (this.bgColor == '#ffffffff') {
+        this.isBlack = false
+      }
+    } else {
+      this.isBlack = false
+    }
+
     this.isLoading = true
     this.source.fetchHttpCode().then(async (code) => {
       this.httpCode = code
@@ -166,7 +202,7 @@ struct Index {
                     Text(item)
                       .fontWeight(600)
                       .fontSize(20)
-                      .fontColor(Color.White)
+                      .fontColor(this.txtColor)
                   }
                   .width('40%')
                   .height('100%')
@@ -185,7 +221,7 @@ struct Index {
           .height('7%')
           .zIndex(0)
           .margin({ bottom: 5 })
-          .backgroundColor('#ff4e4c4c')
+          .backgroundColor(this.cardColor)
 
           Scroll() {
             Column() {
@@ -203,6 +239,7 @@ struct Index {
                             Text(item.title)
                               .fontSize(20)
                               .fontWeight(700)
+                              .fontColor(this.txtColor)
                           }
                           .width('100%')
                           .padding(10)
@@ -220,18 +257,8 @@ struct Index {
                         Text(item.author)
                           .fontSize(15)
                           .fontWeight(FontWeight.Normal)
-                          .fontColor('#56000000')
+                          .fontColor(this.authorTimeColor)
                           .padding(10)
-
-                        Row() {
-                          Text(timeFormatModify(item.published))
-                            .fontSize(15)
-                            .fontColor('#56000000')
-                        }
-                        .layoutWeight(1)
-                        .justifyContent(FlexAlign.End)
-                        .padding(10)
-
                       }
                       .justifyContent(FlexAlign.Start)
                       .width('100%')
@@ -240,6 +267,7 @@ struct Index {
                       Row() {
                         Text(item.description)
                           .width('100%')
+                          .fontColor(this.txtColor)
                       }
                       .padding(10)
 
@@ -248,6 +276,15 @@ struct Index {
                           .width(25)
                         Image($r('app.media.icon_link'))
                           .width(20)
+
+                        Row() {
+                          Text(timeFormatModify(item.published))
+                            .fontSize(15)
+                            .fontColor(this.authorTimeColor)
+                        }
+                        .layoutWeight(1)
+                        .justifyContent(FlexAlign.End)
+                        .padding(10)
                       }
                       .width('100%')
                       .height('7%')
@@ -258,20 +295,11 @@ struct Index {
                     .width('100%')
                   }
                   .margin({ bottom: 40 })
-                  .backgroundColor('#ffe4f3f3')
+                  .backgroundColor(this.cardColor)
                   .borderRadius(10)
                 })
               }
               .width('90%')
-
-              // Image
-
-              // Title
-
-              // Author
-
-              // Publish time
-
             }
             .width('100%')
             .alignItems(HorizontalAlign.Center)
@@ -285,9 +313,57 @@ struct Index {
         .height('100%')
 
         Column() {
-          // this.floatIconBuilder($r('app.media.icon_top'), () => {
-          //   this.smoothScrollToTop()
-          // })
+          this.floatIconBuilder($r('app.media.icon_daymode'), () => {
+            // this.smoothScrollToTop()
+            this.isBlack = !this.isBlack
+            if (this.isBlack == true) {
+              //Dark Mode
+              this.bgColor = "#ff000000"
+              this.txtColor = "#ffffffff"
+              this.cardColor = "#ff3b3a3a"
+              this.authorTimeColor = '#d3e0d8d8'
+              this.cateTxtColor = '#b0ffffff'
+              this.cateBgColor = '#b0514f4f'
+              this.searchBarBgColor = '#c8181818'
+              this.searchBarPlaceholderColor = '#b0ffffff'
+              this.searchBarBorderColor = '#46dbcece'
+              this.topBarBgColor = '#ff1c1b1b'
+              this.style.push(this.bgColor)
+              this.style.push(this.txtColor)
+              this.style.push(this.cardColor)
+              this.style.push(this.authorTimeColor)
+              this.style.push(this.cateTxtColor)
+              this.style.push(this.cateBgColor)
+              this.style.push(this.searchBarBgColor)
+              this.style.push(this.searchBarPlaceholderColor)
+              this.style.push(this.searchBarBorderColor)
+              this.style.push(this.topBarBgColor)
+              this.localStorage.setStyle('style', this.style)
+            } else {
+              //Light Mode
+              this.bgColor = "#ffffffff"
+              this.txtColor = "#ff000000"
+              this.cardColor = "#ffe4f3f3"
+              this.authorTimeColor = '#56000000'
+              this.cateTxtColor = '#56000000'
+              this.cateBgColor = '#fff5f1f1'
+              this.searchBarBgColor = '#ffffff'
+              this.searchBarPlaceholderColor = '#b0918383'
+              this.searchBarBorderColor = '#46000000'
+              this.topBarBgColor = '#ffe4f3f3'
+              this.style.push(this.bgColor)
+              this.style.push(this.txtColor)
+              this.style.push(this.cardColor)
+              this.style.push(this.authorTimeColor)
+              this.style.push(this.cateTxtColor)
+              this.style.push(this.cateBgColor)
+              this.style.push(this.searchBarBgColor)
+              this.style.push(this.searchBarPlaceholderColor)
+              this.style.push(this.searchBarBorderColor)
+              this.style.push(this.topBarBgColor)
+              this.localStorage.setStyle('style', this.style)
+            }
+          })
           this.floatIconBuilder($r('app.media.icon_stared'), () => {
             router.pushUrl({
               url: 'pages/StarPage'
@@ -304,6 +380,7 @@ struct Index {
       .width('100%')
       .height('100%')
       .align(Alignment.BottomEnd)
+      .backgroundColor(this.bgColor)
     }
   }
 }
