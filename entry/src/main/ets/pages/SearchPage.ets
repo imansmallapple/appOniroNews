@@ -5,6 +5,7 @@ import { timeFormatModify } from '../utils/timeUtil'
 import Log from '../utils/Log'
 import { Callback } from '@ohos.base'
 import { LoadComponent, EmptyComponent } from '../component/components'
+import { spaceToPlus } from '../utils/searchUtil'
 
 @Entry
 @Component
@@ -123,11 +124,10 @@ struct SearchPage {
             this.searchValue = value
           })
           .onSubmit(() => {
-            // todo: 这里和按钮需要一个自动把句子中的空格转换成加号的函数
             this.isSearched = true
             this.isLoading = true
-            this.searchNews(this.searchValue)
-            this.loadSearchCategoryCounts(this.searchValue)
+            this.searchNews(spaceToPlus(this.searchValue))
+            this.loadSearchCategoryCounts(spaceToPlus(this.searchValue))
           })
 
         Row() {
@@ -152,8 +152,9 @@ struct SearchPage {
         .onClick(() => {
           this.isSearched = true
           this.isLoading = true
-          this.searchNews(this.searchValue)
-          this.loadSearchCategoryCounts(this.searchValue)
+          this.searchNews(spaceToPlus(this.searchValue))
+          this.loadSearchCategoryCounts(spaceToPlus(this.searchValue))
+          // Log.info('LinkedString', spaceToPlus(this.searchValue))
         })
       }
       .padding(5)
@@ -172,19 +173,19 @@ struct SearchPage {
                     .fontSize(20)
                     .onClick(() => {
                       if (number == 0) {
-                        this.searchNews(this.searchValue)
+                        this.searchNews(spaceToPlus(this.searchValue))
                         this.cate2TextColor = '#b0ffffff'
                         this.cate3TextColor = '#b0ffffff'
                         this.cate1TextColor = '#fffa6f6f'
                       }
                       else if (number == 1) {
-                        this.searchArticles(this.searchValue)
+                        this.searchArticles(spaceToPlus(this.searchValue))
                         this.cate1TextColor = '#b0ffffff'
                         this.cate3TextColor = '#b0ffffff'
                         this.cate2TextColor = '#fffa6f6f'
                       }
                       else if (number == 2) {
-                        this.searchDiscussion(this.searchValue)
+                        this.searchDiscussion(spaceToPlus(this.searchValue))
                         this.cate1TextColor = '#b0ffffff'
                         this.cate2TextColor = '#b0ffffff'
                         this.cate3TextColor = '#fffa6f6f'
