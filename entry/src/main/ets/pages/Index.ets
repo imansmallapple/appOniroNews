@@ -37,6 +37,24 @@ struct Index {
 
   async aboutToAppear(): Promise<void> {
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
+
+    this.isLoading = true
+    this.source.fetchHttpCode().then(async (code) => {
+      this.httpCode = code
+      if (code === 200) {
+        this.isLoading = false
+        this.isHttpError = false
+        let res1: NewsResponse = await this.source.getLatestNews('en')
+        this.latestNews = res1.news
+        let res2: CategoryResponse = await this.source.getCategories()
+        this.categories = res2.categories
+      } else {
+        this.isLoading = false
+        this.isHttpError = true
+        console.error('Failed to fetch data: HTTP Code', code);
+      }
+    })
+
     if (temp.length !== 0) {
       this.bgColor = temp[temp.length-10]
       this.txtColor = temp[temp.length-9]
@@ -56,23 +74,6 @@ struct Index {
     } else {
       this.isBlack = false
     }
-
-    this.isLoading = true
-    this.source.fetchHttpCode().then(async (code) => {
-      this.httpCode = code
-      if (code === 200) {
-        this.isLoading = false
-        this.isHttpError = false
-        let res1: NewsResponse = await this.source.getLatestNews('en')
-        this.latestNews = res1.news
-        let res2: CategoryResponse = await this.source.getCategories()
-        this.categories = res2.categories
-      } else {
-        this.isLoading = false
-        this.isHttpError = true
-        console.error('Failed to fetch data: HTTP Code', code);
-      }
-    })
   }
 
   async getCategorizedLatestNews(language: string, category: string) {
