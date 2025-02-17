@@ -3,6 +3,8 @@
     "pages/Index",
     "pages/NewsDetail",
     "pages/SearchPage",
-    "pages/StarPage"
+    "pages/StarPage",
+    "pages/Login",
+    "pages/Register"
   ]
 }
