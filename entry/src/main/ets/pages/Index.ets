@@ -7,6 +7,10 @@ import { timeFormatModify } from '../utils/timeUtil'
 import { HttpErrorComponent, LoadComponent } from '../component/components'
 import Log from '../utils/Log'
 import Storage from '../preference/Storage'
+import { runAccountOperations } from '../methods/account'
+import common from '@ohos.app.ability.common'
+
+let context = getContext(this) as common.UIAbilityContext;
 
 @Entry
 @Component
@@ -34,6 +38,8 @@ struct Index {
   @State searchBarBorderColor: string = '#46000000'
   @State topBarBgColor: string = '#ffe4f3f3'
   @State isBlack: boolean = false
+  // auth
+  @State isUserExist: boolean = false
 
   async aboutToAppear(): Promise<void> {
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
