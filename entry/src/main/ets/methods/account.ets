@@ -3,6 +3,10 @@ import { AccountDaoRdb } from '../database/dao/AccountDaoRdb'
 import { NewUserDto } from '../database/dto/Account/NewUserDto'
 import Log from '../utils/Log'
 import { passwordEncoder, passwordDecoder } from '../utils/passwordManager'
+import { AccountNewsDaoRdb } from '../database/dao/AccountNewsDaoRdb'
+import { AccountNewsDto } from '../database/dto/AccountNews/AccountNewsDto'
+import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
+import { NewsDto } from '../database/dto/News/NewsDto'
 
 const Tag = 'Test RDB'
 
@@ -12,12 +16,34 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
 
     const accountDao = new AccountDaoRdb(dbInstance)
 
+    const newsDao = new NewsDaoRdb(dbInstance)
+
+    const newNews: NewsDto = {
+      id: 'wdwcw2rk2of32',
+      title: 'This is title1',
+      image: 'this is image1',
+      url: 'this is url1',
+      published: 'published1',
+      description: 'description1',
+      category: 'category1',
+      author: 'author1',
+      language: 'language1'
+    }
     const newUser: NewUserDto = {
       email: 'alf139540fun@gmail.com',
       username: 'alfred',
       token: '23243faefe'
     }
 
+    const accountNewsDao = new AccountNewsDaoRdb(dbInstance)
+    const newAccountNews: AccountNewsDto = {
+      account_email: newUser.email,
+      news_id: newNews.id
+    }
+    const newAccountNewsId = await accountNewsDao.addAccountNews(newAccountNews)
+    Log.info(Tag, 'Inserted accountNews with ID:', newAccountNewsId)
+    Log.info(Tag, 'Inserted accountNews with email:', newAccountNews.account_email)
+    Log.info(Tag, 'Inserted accountNews with news id:', newAccountNews.news_id)
     const newUserId = await accountDao.addUser(newUser)
     Log.info(Tag, 'Inserted news with ID:', newUserId)
     const allAccounts = await accountDao.getAllUsers()

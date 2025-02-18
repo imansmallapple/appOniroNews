@@ -32,7 +32,6 @@ export class DBConfig {
   static readonly ACCOUNT_NEWS_TABLE: DbTable = {
     tableName: 'account_news',
     sqlCreate: 'CREATE TABLE IF NOT EXISTS account_news(' +
-      // 'id TEXT PRIMARY KEY,' +
       'account_email TEXT,' +
       'news_id TEXT,' +
       'PRIMARY KEY(account_email, news_id),' +
