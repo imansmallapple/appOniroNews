@@ -1,6 +1,17 @@
+import router from '@ohos.router'
+import { AccountManager } from '../methods/account'
+import common from '@ohos.app.ability.common';
+import promptAction from '@ohos.promptAction';
+
+let context = getContext(this) as common.UIAbilityContext;
+
 @Entry
 @Component
 struct Login {
+  @State email: string = ''
+  @State password: string = ''
+  private accountManager: AccountManager = new AccountManager(context)
+
   build() {
     Column({ space: 50 }) {
 
@@ -27,8 +38,12 @@ struct Login {
         Row() {
           Image($r('app.media.icon_user'))
             .iconStyle()
-          TextInput({ placeholder: 'account number' })
+          TextInput({ placeholder: 'email' })
             .inputStyle()
+            .type(InputType.Email)
+            .onChange((value) => {
+              this.email = value
+            })
         }
         .margin({ top: 30 })
 
@@ -40,6 +55,10 @@ struct Login {
             .iconStyle()
           TextInput({ placeholder: 'password' })
             .inputStyle()
+            .type(InputType.Password)
+            .onChange((value) => {
+              this.password = value
+            })
         }.margin({ top: 30 })
 
         Divider()
@@ -47,14 +66,27 @@ struct Login {
           .strokeWidth(1)
 
         Button('Login')
-          .buttonlStyle(
+          ._buttonStyle(
             Color.Black,
             Color.White
           )
           .width('100%')
           .margin({ top: 50 })
-          .onClick(() => {
+          .onClick(async () => {
             //to do: login
+            let res = await this.accountManager.login(this.email, this.password)
+            if (res == true) {
+              promptAction.showToast({
+                message: "Login succeed!"
+              })
+              router.pushUrl({
+                url: 'pages/Index'
+                })
+            } else {
+              promptAction.showToast({
+                message: "Wrong email or password!"
+              })
+            }
           })
       }
       .loginContainerStyle()
@@ -73,6 +105,11 @@ struct Login {
       }
       .justifyContent(FlexAlign.Center)
       .width('100%')
+      .onClick(() => {
+        router.pushUrl({
+          url: 'pages/Register'
+        })
+      })
     }
     .loginBgStyle()
     .justifyContent(FlexAlign.Center)
@@ -94,7 +131,7 @@ function inputStyle() {
 }
 
 @Extend(Button)
-function buttonlStyle(
+function _buttonStyle(
   btColor: ResourceColor,
   fontColor: ResourceColor,
 ) {

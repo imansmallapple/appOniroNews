@@ -1,17 +1,31 @@
 import router from '@ohos.router'
+import { AccountManager } from '../methods/account'
+import common from '@ohos.app.ability.common';
+import Log from '../utils/Log';
+import promptAction from '@ohos.promptAction';
+
+let context = getContext(this) as common.UIAbilityContext;
 
 @Entry
 @Component
 struct Register {
+  @State username: string = ''
+  @State email: string = ''
+  @State password: string = ''
+  @State repeat: string = ''
+  @State isUserExist: boolean = false
+  private accountManager: AccountManager = new AccountManager(context)
+  @State isInputDataLegal: boolean = true
+
   build() {
     Column({ space: 50 }) {
-      Image($r('app.media.icon_back'))
-        .width(25)
-        .height(25)
-        .alignSelf(ItemAlign.Start)
-        .onClick(() => {
-          router.back()
-        })
+      // Image($r('app.media.icon_back'))
+      //   .width(25)
+      //   .height(25)
+      //   .alignSelf(ItemAlign.Start)
+      //   .onClick(() => {
+      //     router.back()
+      //   })
       Column() {
         Row({ space: 20 }) {
           Image($r('app.media.app_icon'))
@@ -27,6 +41,7 @@ struct Register {
         .padding(20)
       }
       .height('20%')
+
       Column() {
         Text('Registration')
           .fontSize(22)
@@ -42,12 +57,19 @@ struct Register {
             .backgroundColor(Color.Transparent)
             .fontSize(14)
             .layoutWeight(1)
+            .onChange((value) => {
+              this.username = value
+            })
         }
         .margin({ top: 30 })
 
         Divider()
           .color(Color.Black)
           .strokeWidth(1)
+        if (this.isUserExist) {
+          Text("User exist!")
+            .fontColor(Color.Red)
+        }
 
         Row() {
           Image($r('app.media.icon_email'))
@@ -58,6 +80,10 @@ struct Register {
             .backgroundColor(Color.Transparent)
             .fontSize(14)
             .layoutWeight(1)
+            .onChange((value) => {
+              this.email = value
+            })
+            .type(InputType.Email)
         }
         .margin({ top: 30 })
 
@@ -75,6 +101,10 @@ struct Register {
             .backgroundColor(Color.Transparent)
             .fontSize(14)
             .layoutWeight(1)
+            .onChange((value) => {
+              this.password = value
+            })
+            .type(InputType.Password)
         }.margin({ top: 30 })
 
         Divider()
@@ -89,12 +119,20 @@ struct Register {
             .backgroundColor(Color.Transparent)
             .fontSize(14)
             .layoutWeight(1)
+            .onChange((value) => {
+              this.repeat = value
+            })
+            .type(InputType.Password)
         }
         .margin({ top: 30 })
 
         Divider()
           .color(Color.Black)
           .strokeWidth(1)
+        if (!this.isInputDataLegal) {
+          Text('data ileagal')
+            .fontColor(Color.Red)
+        }
 
         Button('Register')
           .fontColor(Color.White)
@@ -107,8 +145,22 @@ struct Register {
           .fontWeight(FontWeight.Medium)
           .width('100%')
           .margin({ top: 50 })
-          .onClick(() => {
-            //to do: login
+          .onClick(async () => {
+            this.isUserExist = await this.accountManager.isUserExist(this.email)
+            let isDataLegal = this.accountManager.isDataLegal(this.username, this.email, this.password, this.repeat)
+            this.isInputDataLegal = isDataLegal
+            Log.info('Test RDB', 'isDataLegal:', isDataLegal)
+            if (this.isInputDataLegal) {
+              let isRegistered = await this.accountManager.register(this.email, this.username, this.password)
+              Log.info('Test RDB', 'register result:', isRegistered)
+
+              if (isRegistered == true) {
+                promptAction.showToast({
+                  message: "Registration succeed!"
+                })
+                router.back()
+              }
+            }
           })
       }
       .width('70%')

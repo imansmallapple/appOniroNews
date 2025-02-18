@@ -69,6 +69,18 @@ export class AccountManager {
     this.initialize(context)
   }
 
+  async login(email: string, password: string): Promise<boolean> {
+    const res: NewUserDto[] = await this.accountDao.getUserByEmail(email)
+    if (res.length === 0) {
+      Log.info(this.TAG, 'user not exist')
+      return false
+    } else {
+      Log.info(this.TAG, 'user exist, check password')
+      let checkRes = await this.checkUserPassword(res, password)
+      return checkRes
+    }
+  }
+
   async register(email: string, username: string, password: string): Promise<boolean> {
     // todo: find if user exist in the db or not
     let res = await this.isUserExist(email)
@@ -100,7 +112,20 @@ export class AccountManager {
     }
   }
 
-  isDataLegal(username: string, email: string, password: string): boolean {
+  async checkUserPassword(user: NewUserDto[], password: string): Promise<boolean> {
+    let decodePwd: string = passwordDecoder(user[0].token)
+    if (decodePwd == password) {
+      return true
+    } else {
+      return false
+    }
+  }
+
+  isDataLegal(username: string, email: string, password: string, repeat: string): boolean {
+    if (password !== repeat) {
+      Log.info(this.TAG, 'password don\'t match')
+      return false
+    }
     const emailRegex: RegExp = new RegExp("^[^\\s@]+@[^\s@]+\\.(com|net|org|edu|gov|info|io|cn)$")
     const passwordRegex: RegExp = new RegExp("^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d).{8,}$")
 
