@@ -1,14 +1,12 @@
 import { DataSource } from '../data/DataSource'
 import { NewsResponse, News } from '../model/news'
-import hilog from '@ohos.hilog'
 import { CategoryResponse } from '../model/categories'
 import router from '@ohos.router'
 import { timeFormatModify } from '../utils/timeUtil'
 import { HttpErrorComponent, LoadComponent } from '../component/components'
-import Log from '../utils/Log'
 import Storage from '../preference/Storage'
-import { runAccountOperations } from '../methods/account'
 import common from '@ohos.app.ability.common'
+import NewsItem from '../component/newsItem'
 
 let context = getContext(this) as common.UIAbilityContext;
 
@@ -87,35 +85,6 @@ struct Index {
     this.latestNews = res.news
   }
 
-  // private smoothScrollToTop() {
-  //   const scrollDuration = 1000
-  //   const frameRate = 60
-  //   const interval = 1000 / frameRate
-  //   const totalFrames = scrollDuration / interval
-  //
-  //   let currentFrame = 0;
-  //   const startY = this.scroller.currentOffset().yOffset
-  //   const distance = -startY
-  //
-  //   const scrollStep = () => {
-  //     currentFrame++;
-  //     const progress = Math.min(currentFrame / totalFrames, 1)
-  //     const easeOutQuad = (t: number) => t * (2 - t)
-  //     const easedProgress = easeOutQuad(progress)
-  //
-  //     this.scroller.scrollTo({
-  //       xOffset: 0,
-  //       yOffset: startY + distance * easedProgress,
-  //       animation: false,
-  //     });
-  //
-  //     if (currentFrame < totalFrames) {
-  //       setTimeout(scrollStep, interval)
-  //     }
-  //   };
-  //   scrollStep()
-  // }
-
   @Builder
   floatIconBuilder(icon: Resource, callback?: () => void) {
     Row() {
@@ -190,7 +159,6 @@ struct Index {
                 console.error('Failed to fetch data: HTTP Code', code);
               }
             })
-            // Log.info('isLoading: ', this.isLoading)
           })
         }
         .width('100%')
@@ -244,71 +212,7 @@ struct Index {
                 List({ scroller: this.scroller }) {
                   ForEach(this.latestNews, (item: News) => {
                     ListItem() {
-                      Column() {
-                        Column() {
-                          Column() {
-                            Image(item.image)
-                              .width('100%')
-                              .objectFit(ImageFit.Contain)
-                              .borderRadius({ topLeft: 10, topRight: 10 })
-                            Row() {
-                              Text(item.title)
-                                .fontSize(20)
-                                .fontWeight(700)
-                                .fontColor(this.txtColor)
-                            }
-                            .width('100%')
-                            .padding(10)
-                          }
-                          .onClick(() => {
-                            router.pushUrl({
-                              url: "pages/NewsDetail",
-                              params: item
-                            })
-                          })
-                        }
-                        .width('100%')
-
-                        Row({ space: 10 }) {
-                          Text(item.author)
-                            .fontSize(15)
-                            .fontWeight(FontWeight.Normal)
-                            .fontColor(this.authorTimeColor)
-                            .padding(10)
-                        }
-                        .justifyContent(FlexAlign.Start)
-                        .width('100%')
-
-                        // Description
-                        Row() {
-                          Text(item.description)
-                            .width('100%')
-                            .fontColor(this.txtColor)
-                        }
-                        .padding(10)
-
-                        Row({ space: 10 }) {
-                          Image($r('app.media.icon_stared'))
-                            .width(25)
-                          Image($r('app.media.icon_link'))
-                            .width(20)
-
-                          Row() {
-                            Text(timeFormatModify(item.published))
-                              .fontSize(15)
-                              .fontColor(this.authorTimeColor)
-                          }
-                          .layoutWeight(1)
-                          .justifyContent(FlexAlign.End)
-                          .padding(10)
-                        }
-                        .width('100%')
-                        .height('7%')
-                        .justifyContent(FlexAlign.Start)
-                        .alignItems(VerticalAlign.Center)
-                        .margin({ left: 10 })
-                      }
-                      .width('100%')
+                      NewsItem({ item: item })
                     }
                     .margin({ bottom: 40 })
                     .backgroundColor(this.cardColor)
