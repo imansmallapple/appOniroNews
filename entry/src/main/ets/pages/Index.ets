@@ -7,6 +7,7 @@ import { HttpErrorComponent, LoadComponent } from '../component/components'
 import Storage from '../preference/Storage'
 import common from '@ohos.app.ability.common'
 import NewsItem from '../component/newsItem'
+import { runAccountOperations } from '../methods/account'
 
 let context = getContext(this) as common.UIAbilityContext;
 
@@ -40,6 +41,7 @@ struct Index {
   @State isUserExist: boolean = false
 
   async aboutToAppear(): Promise<void> {
+    runAccountOperations(context)
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
     this.isLoading = true

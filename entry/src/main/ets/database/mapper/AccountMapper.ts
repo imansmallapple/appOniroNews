@@ -32,24 +32,6 @@ export class AccountMapper {
     return userList
   }
 
-  // public static resultSetToUserExist(resultSet: relationalStore.ResultSet): boolean {
-  //   const userList: NewUserDto[] = []
-  //   while (resultSet.goToNextRow()) {
-  //     const user: NewUserDto = {
-  //       email: resultSet.getString(resultSet.getColumnIndex('email')),
-  //       username: resultSet.getString(resultSet.getColumnIndex('username')),
-  //       token: resultSet.getString(resultSet.getColumnIndex('token'))
-  //     }
-  //     userList.push(user)
-  //   }
-  //
-  //   if (userList.length === 0) {
-  //     return false
-  //   } else {
-  //     return true
-  //   }
-  // }
-
   public static entityToSave(entity: AccountEntity): relationalStore.ValuesBucket {
     return {
       email: entity.email,

@@ -17,18 +17,6 @@ struct NewsDetail {
 
   build() {
     Column() {
-      // Row({ space: 10 }) {
-      //   Image($r('app.media.icon_back'))
-      //     .width(30)
-      // }
-      // .justifyContent(FlexAlign.Start)
-      // .alignItems(VerticalAlign.Center)
-      // .width('100%')
-      // .height('7%')
-      // .zIndex(0)
-      // .margin({ left: 10 })
-      // .backgroundColor('#ff4e4c4c')
-
       Web({ src: this.localUrl, controller: this.controller })
         .width('100%')
         .height('110%')

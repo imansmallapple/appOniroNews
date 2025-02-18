@@ -29,4 +29,15 @@ export class DBConfig {
       'token TEXT)',
     columns: ['email', 'username', 'token']
   }
+  static readonly ACCOUNT_NEWS_TABLE: DbTable = {
+    tableName: 'account_news',
+    sqlCreate: 'CREATE TABLE IF NOT EXISTS account_news(' +
+      // 'id TEXT PRIMARY KEY,' +
+      'account_email TEXT,' +
+      'news_id TEXT,' +
+      'PRIMARY KEY(account_email, news_id),' +
+      'FOREIGN KEY (account_email) REFERENCES account(email) ON DELETE CASCADE,' +
+      'FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE)',
+    columns: ['id', 'account_email', 'news_id']
+  }
 }

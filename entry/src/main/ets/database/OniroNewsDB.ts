@@ -27,6 +27,8 @@ export class OniroNewsDB extends BaseRelationalDatabase {
     Log.debug(`DB Table created: ${DBConfig.NEWS_TABLE.tableName}[${DBConfig.NEWS_TABLE.columns}]`)
     await store.executeSql(DBConfig.ACCOUNT_TABLE.sqlCreate)
     Log.debug(`DB Table created: ${DBConfig.ACCOUNT_TABLE.tableName}[${DBConfig.ACCOUNT_TABLE.columns}]`)
+    await store.executeSql(DBConfig.ACCOUNT_NEWS_TABLE.sqlCreate)
+    Log.debug(`DB Table created: ${DBConfig.ACCOUNT_NEWS_TABLE.tableName}[${DBConfig.ACCOUNT_NEWS_TABLE.columns}]`)
   }
 }
 
