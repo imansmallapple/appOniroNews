@@ -7,6 +7,7 @@ import { AccountNewsDaoRdb } from '../database/dao/AccountNewsDaoRdb'
 import { AccountNewsDto } from '../database/dto/AccountNews/AccountNewsDto'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { NewsDto } from '../database/dto/News/NewsDto'
+import { AccountNewsManager } from './accountNews'
 
 const Tag = 'Test RDB'
 
@@ -18,9 +19,22 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
 
     const newsDao = new NewsDaoRdb(dbInstance)
 
+    const accountNewsManager: AccountNewsManager = new AccountNewsManager(context)
     const newNews: NewsDto = {
       id: 'wdwcw2rk2of32',
       title: 'This is title1',
+      image: 'this is image1',
+      url: 'this is url1',
+      published: 'published1',
+      description: 'description1',
+      category: 'category1',
+      author: 'author1',
+      language: 'language1'
+    }
+
+    const newNews2: NewsDto = {
+      id: 'wdwcw2rk2of32333',
+      title: 'This is title2',
       image: 'this is image1',
       url: 'this is url1',
       published: 'published1',
@@ -49,8 +63,16 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
       account_email: newUser2.email,
       news_id: newNews.id
     }
+    const newAccountNews4: AccountNewsDto = {
+      account_email: newUser2.email,
+      news_id: newNews2.id
+    }
+    const newId1 = await newsDao.addNews(newNews)
+    const newId2 = await newsDao.addNews(newNews2)
+
     const newAccountNewsId1 = await accountNewsDao.addAccountNews(newAccountNews1)
     const newAccountNewsId2 = await accountNewsDao.addAccountNews(newAccountNews2)
+    const newAccountNewsId3 = await accountNewsDao.addAccountNews(newAccountNews4)
     Log.info(Tag, 'Inserted accountNews with ID:', newAccountNewsId1)
     Log.info(Tag, 'Inserted accountNews with ID:', newAccountNewsId2)
 
@@ -65,7 +87,6 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
     Log.info(Tag, 'User2News:', JSON.stringify(User2News))
     Log.info(Tag, 'User3News:', JSON.stringify(User3News))
 
-
     const newUserId = await accountDao.addUser(newUser1)
     Log.info(Tag, 'Inserted news with ID:', newUserId)
     const allAccounts = await accountDao.getAllUsers()
@@ -77,6 +98,10 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
 
     const userByEmail1 = await accountDao.getUserByEmail('alf139540fun@gmail.com')
     const userByEmail2 = await accountDao.getUserByEmail('alf139540fun@gma.com')
+
+   let res = await accountNewsManager.getUserNews('alf138540fun@gmail.com', newsDao)
+    Log.info(Tag, 'Account News Manager method test:', JSON.stringify(res))
+
     if (userByEmail1.length === 0) {
       Log.info(Tag, 'user1 not exist')
     } else {
