@@ -37,6 +37,6 @@ export class DBConfig {
       'PRIMARY KEY(account_email, news_id),' +
       'FOREIGN KEY (account_email) REFERENCES account(email) ON DELETE CASCADE,' +
       'FOREIGN KEY (news_id) REFERENCES news(id) ON DELETE CASCADE)',
-    columns: ['id', 'account_email', 'news_id']
+    columns: ['account_email', 'news_id']
   }
 }

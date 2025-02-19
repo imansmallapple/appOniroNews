@@ -29,22 +29,44 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
       author: 'author1',
       language: 'language1'
     }
-    const newUser: NewUserDto = {
+    const newUser1: NewUserDto = {
       email: 'alf139540fun@gmail.com',
       username: 'alfred',
       token: '23243faefe'
     }
 
+    const newUser2: NewUserDto = {
+      email: 'alf138540fun@gmail.com',
+      username: 'alfred',
+      token: '23243faefe'
+    }
     const accountNewsDao = new AccountNewsDaoRdb(dbInstance)
-    const newAccountNews: AccountNewsDto = {
-      account_email: newUser.email,
+    const newAccountNews1: AccountNewsDto = {
+      account_email: newUser1.email,
       news_id: newNews.id
     }
-    const newAccountNewsId = await accountNewsDao.addAccountNews(newAccountNews)
-    Log.info(Tag, 'Inserted accountNews with ID:', newAccountNewsId)
-    Log.info(Tag, 'Inserted accountNews with email:', newAccountNews.account_email)
-    Log.info(Tag, 'Inserted accountNews with news id:', newAccountNews.news_id)
-    const newUserId = await accountDao.addUser(newUser)
+    const newAccountNews2: AccountNewsDto = {
+      account_email: newUser2.email,
+      news_id: newNews.id
+    }
+    const newAccountNewsId1 = await accountNewsDao.addAccountNews(newAccountNews1)
+    const newAccountNewsId2 = await accountNewsDao.addAccountNews(newAccountNews2)
+    Log.info(Tag, 'Inserted accountNews with ID:', newAccountNewsId1)
+    Log.info(Tag, 'Inserted accountNews with ID:', newAccountNewsId2)
+
+    const allAccountNews = await accountNewsDao.getAllAccountNews()
+    Log.info(Tag, 'All account news:', JSON.stringify(allAccountNews.length))
+    Log.info(Tag, 'All account news:', JSON.stringify(allAccountNews))
+
+    const User1News = await accountNewsDao.getNewsByEmail('alf139540fun@gmail.com')
+    const User2News = await accountNewsDao.getNewsByEmail('alf138540fun@gmail.com')
+    const User3News = await accountNewsDao.getByNewsId('wdwcw2rk2of32')
+    Log.info(Tag, 'User1News:', JSON.stringify(User1News))
+    Log.info(Tag, 'User2News:', JSON.stringify(User2News))
+    Log.info(Tag, 'User3News:', JSON.stringify(User3News))
+
+
+    const newUserId = await accountDao.addUser(newUser1)
     Log.info(Tag, 'Inserted news with ID:', newUserId)
     const allAccounts = await accountDao.getAllUsers()
     Log.info(Tag, 'All news:', JSON.stringify(allAccounts))

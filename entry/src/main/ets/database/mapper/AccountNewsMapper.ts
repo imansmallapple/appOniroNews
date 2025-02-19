@@ -6,7 +6,7 @@ export class AccountNewsMapper {
   public static toAccountNewsEntity(item: AccountNewsDto): AccountNewsEntity {
     return new AccountNewsEntity(
       item.account_email,
-      item.news_id
+      item.news_id,
     )
   }
 
@@ -20,11 +20,11 @@ export class AccountNewsMapper {
   public static resultSetToAccountNews(resultSet: relationalStore.ResultSet): AccountNewsDto[] {
     const accountNewsList: AccountNewsDto[] = []
     while (resultSet.goToNextRow()) {
-      const user: AccountNewsDto = {
-        account_email: resultSet.getString(resultSet.getColumnIndex('email')),
-        news_id: resultSet.getString(resultSet.getColumnIndex('username')),
+      const accountNews: AccountNewsDto = {
+        account_email: resultSet.getString(resultSet.getColumnIndex('account_email')),
+        news_id: resultSet.getString(resultSet.getColumnIndex('news_id')),
       }
-      accountNewsList.push(user)
+      accountNewsList.push(accountNews)
     }
     return accountNewsList
   }
