@@ -29,21 +29,25 @@ export class AccountNewsManager {
     this.initialize(context)
   }
 
-  async getUserNews(email: string, newsDao: NewsDaoRdb): Promise<NewsDto[]> {
+  async getUserNews(email: string): Promise<string[]> {
     const userAccountNews = await this.accountNewsDao.getNewsByEmail(email)
     Log.info(TAG, 'userAccountNews', JSON.stringify(userAccountNews))
-
-    const newsPromises = userAccountNews.map(async (item) => {
-      let res: NewsDto[] = await newsDao.getNewsById(item.news_id)
-      return res.pop() // 可能为空
+    let res: string[] = []
+    userAccountNews.forEach((item) => {
+      res.push(item.news_id)
     })
-
-    const results = await Promise.all(newsPromises)
-    const currentUserNews = results.filter((news) => news !== undefined) as NewsDto[]
-
-    Log.info(TAG, 'userAccountNews finish: ', JSON.stringify(currentUserNews))
-    return currentUserNews
+    return res
   }
+
+  // async getUserNews(email: string): Promise<string[]> {
+  //   const userAccountNews = await this.accountNewsDao.getNewsByEmail(email);
+  //   Log.info(TAG, 'userAccountNews', JSON.stringify(userAccountNews));
+  //
+  //   let res = userAccountNews.map(item => item.news_id);
+  //   Log.info(TAG, 'Final news list:', JSON.stringify(res));
+  //
+  //   return res;
+  // }
 
   async addUserNews(email: string, newsId: string): Promise<number> {
     let entity: AccountNewsDto = {

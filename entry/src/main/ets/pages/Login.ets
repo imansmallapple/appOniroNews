@@ -3,7 +3,7 @@ import { AccountManager } from '../methods/account'
 import common from '@ohos.app.ability.common';
 import promptAction from '@ohos.promptAction';
 
-let context = getContext(this) as common.UIAbilityContext;
+let context = getContext(this) as common.UIAbilityContext
 
 @Entry
 @Component
@@ -80,8 +80,11 @@ struct Login {
                 message: "Login succeed!"
               })
               router.pushUrl({
-                url: 'pages/Index'
-                })
+                url: 'pages/Index',
+                params: {
+                  email: this.email
+                }
+              })
             } else {
               promptAction.showToast({
                 message: "Wrong email or password!"

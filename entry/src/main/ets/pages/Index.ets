@@ -8,8 +8,15 @@ import Storage from '../preference/Storage'
 import common from '@ohos.app.ability.common'
 import NewsItem from '../component/newsItem'
 import { runAccountOperations } from '../methods/account'
+import { NewsManager } from '../methods/news'
+import { AccountNewsManager } from '../methods/accountNews'
+import Log from '../utils/Log'
 
 let context = getContext(this) as common.UIAbilityContext;
+
+interface RouterParams {
+  email: string
+}
 
 @Entry
 @Component
@@ -39,9 +46,21 @@ struct Index {
   @State isBlack: boolean = false
   // auth
   @State isUserExist: boolean = false
+  // database
+  private newsManager: NewsManager = new NewsManager(context)
+  private accountNewsManager: AccountNewsManager = new AccountNewsManager(context)
+  // user info
+  // todo: unblock it later
+  // @State email: string = ''
+  private email: string = 'alf13850fun@gmail.com'
+  @State savedNewsId: string[] = []
 
   async aboutToAppear(): Promise<void> {
-    runAccountOperations(context)
+    // runAccountOperations(context)
+
+    // todo: unblock it later
+    // let res: RouterParams = router.getParams() as RouterParams
+    // this.email = res.email
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
     this.isLoading = true
@@ -54,6 +73,26 @@ struct Index {
         this.latestNews = res1.news
         let res2: CategoryResponse = await this.source.getCategories()
         this.categories = res2.categories
+
+        let res3 = await this.accountNewsManager.getUserNews(this.email)
+        this.savedNewsId = res3
+        Log.info('test string res3', res3)
+        Log.info('test string res3 savedNewsId', this.savedNewsId)
+
+        // todo: push all recent news into news database
+        // this.latestNews.forEach((item) => {
+        //   this.newsManager.addNews(item)
+        // })
+        // let res = this.newsManager.getAllNews()
+        // Log.info('test string res all news:', JSON.stringify(res))
+        await Promise.all(this.latestNews.map((item) => this.newsManager.addNews(item)))
+        try {
+          let res = await this.newsManager.getAllNews()
+          Log.info('test string res all news:', JSON.stringify(res))
+        } catch (error) {
+          Log.error('test string res all news ERROR:', error)
+        }
+
       } else {
         this.isLoading = false
         this.isHttpError = true
@@ -81,6 +120,11 @@ struct Index {
       this.isBlack = false
     }
   }
+
+  // async onPageShow(): Promise<void> {
+  //   let res2 = await this.accountNewsManager.getUserNews(this.email)
+  //   Log.info('test string res2', res2)
+  // }
 
   async getCategorizedLatestNews(language: string, category: string) {
     let res: NewsResponse = await this.source.getLatestNews(language, category)
@@ -214,7 +258,13 @@ struct Index {
                 List({ scroller: this.scroller }) {
                   ForEach(this.latestNews, (item: News) => {
                     ListItem() {
-                      NewsItem({ item: item })
+                      NewsItem({
+                        item: item,
+                        newsManager: this.newsManager,
+                        accountNewsManager: this.accountNewsManager,
+                        currentUserEmail: this.email,
+                        savedNewsId: $savedNewsId
+                      })
                     }
                     .margin({ bottom: 40 })
                     .backgroundColor(this.cardColor)
@@ -288,7 +338,13 @@ struct Index {
             })
             this.floatIconBuilder($r('app.media.icon_stared'), () => {
               router.pushUrl({
-                url: 'pages/StarPage'
+                url: 'pages/StarPage',
+                params: {
+                  email: this.email,
+                  accountNewsManager: this.accountNewsManager,
+                  newsManager: this.newsManager,
+                  savedNewsId: this.savedNewsId
+                }
               })
             })
             this.floatIconBuilder($r('app.media.icon_search'), () => {

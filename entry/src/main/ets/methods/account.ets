@@ -111,11 +111,11 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
     const userByEmail1 = await accountDao.getUserByEmail('alf139540fun@gmail.com')
     const userByEmail2 = await accountDao.getUserByEmail('alf139540fun@gma.com')
 
-   let res = await accountNewsManager.getUserNews('alf138540fun@gmail.com', newsDao)
+   let res = await accountNewsManager.getUserNews('alf138540fun@gmail.com')
     Log.info(Tag, 'Account News Manager method test:', JSON.stringify(res))
     let res2 = await accountNewsManager.addUserNews('alf138540fun@gmail.com', 'wdwcw2rk2of32333122')
+    let res3 = await accountNewsManager.getUserNews('alf138540fun@gmail.com')
     Log.info(Tag, 'Account News Manager method add user test:', JSON.stringify(res2))
-    let res3 = await accountNewsManager.getUserNews('alf138540fun@gmail.com', newsDao)
     Log.info(Tag, 'Account News Manager method after add user:', JSON.stringify(res3))
 
     if (userByEmail1.length === 0) {

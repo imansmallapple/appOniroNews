@@ -2,6 +2,7 @@ import { OniroNewsDB } from '../database/OniroNewsDB'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { NewsDto } from '../database/dto/News/NewsDto'
 import Log from '../utils/Log'
+import { News } from '../model/news'
 
 const Tag = 'Test RDB'
 
@@ -61,5 +62,73 @@ export async function runNewsOperations(context: Context) {
     // const addId = await newsDao.addNews(newNews)
   } catch (error) {
     Log.error(Tag, 'Error during DB operations', JSON.stringify(error))
+  }
+}
+
+export class NewsManager {
+  private TAG = 'Test RDB'
+  private dbInstance!: OniroNewsDB
+  private newsDao!: NewsDaoRdb
+
+  private async initialize(context: Context) {
+    try {
+      this.dbInstance = await OniroNewsDB.getInstance(context)
+      this.newsDao = new NewsDaoRdb(this.dbInstance)
+    }
+    catch (error) {
+      Log.error(Tag, 'Error during DB operations', JSON.stringify(error))
+    }
+  }
+
+  constructor(context: Context) {
+    this.initialize(context)
+  }
+
+  newsToDto(news: News): NewsDto {
+    return {
+      id: news.id,
+      title: news.title,
+      image: news.image,
+      url: news.url,
+      published: news.published,
+      description: news.description,
+      category: news.category,
+      author: news.author,
+      language: news.language
+    }
+  }
+
+  // async addNews(item: News): Promise<number> {
+  //   let newsDto: NewsDto = this.newsToDto(item)
+  //   let res = await this.newsDao.addNews(newsDto)
+  //   Log.info('test string inside fuc add', res)
+  //   return res
+  // }
+  async addNews(item: News): Promise<number> {
+    let newsDto: NewsDto = this.newsToDto(item)
+    // newsDto ok
+    // Log.info('test string before addNews', JSON.stringify(newsDto))
+
+    let res = await this.newsDao.addNews(newsDto)
+
+    Log.info('test string inside func add', res)
+    return res
+  }
+
+  async removeNews(item: News): Promise<number> {
+    let newsDto: NewsDto = this.newsToDto(item)
+    let res = await this.newsDao.deleteNews(newsDto)
+    return res
+  }
+
+  async getNewsById(id: string): Promise<NewsDto[]> {
+    let res: NewsDto[] = await this.newsDao.getNewsById(id)
+    return res
+  }
+
+  async getAllNews(): Promise<NewsDto[]> {
+    let res: NewsDto[] = await this.newsDao.getAllNews()
+    Log.info('test string inside fuc get', res)
+    return res
   }
 }

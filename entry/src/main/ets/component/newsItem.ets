@@ -1,6 +1,13 @@
 import { News } from '../model/news'
 import { timeFormatModify } from '../utils/timeUtil'
 import router from '@ohos.router'
+import { AccountNewsManager } from '../methods/accountNews'
+import { NewsManager } from '../methods/news'
+import { AccountNewsDto } from '../database/dto/AccountNews/AccountNewsDto'
+import promptAction from '@ohos.promptAction'
+import Log from '../utils/Log'
+
+const Tag = 'Test NewsItem'
 
 @Component
 export default struct NewsItem {
@@ -8,6 +15,23 @@ export default struct NewsItem {
   @State isStared: boolean = false
   @State authorTimeColor: string = '#56000000'
   @State txtColor: string = '#ff000000'
+  private accountNewsManager!: AccountNewsManager
+  private newsManager!: NewsManager
+  private currentUserEmail!: string
+  @Link savedNewsId: string[]
+
+  async aboutToAppear(): Promise<void> {
+    let res = await this.accountNewsManager.getUserNews(this.currentUserEmail)
+    this.savedNewsId = res
+  }
+
+  async saveNews(email: string, id: string) {
+    this.accountNewsManager.addUserNews(email, id)
+    let res = await this.accountNewsManager.getUserNews(email)
+    Log.info(Tag, 'user all news:', JSON.stringify(res))
+    this.savedNewsId = res
+    Log.info(Tag, 'savedNewsId:', JSON.stringify(this.savedNewsId))
+  }
 
   build() {
     Column() {
@@ -58,6 +82,13 @@ export default struct NewsItem {
           .width(25)
           .onClick(() => {
             this.isStared = !this.isStared
+            // todo: Implement user save functionality
+            this.saveNews(this.currentUserEmail, this.item.id)
+            Log.info(Tag, 'add email:', this.currentUserEmail)
+            Log.info(Tag, 'add news id:', this.item.id)
+            promptAction.showToast({
+              message: "News saved!"
+            })
           })
         Image($r('app.media.icon_link'))
           .width(20)
