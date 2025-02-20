@@ -44,4 +44,22 @@ export class AccountNewsManager {
     Log.info(TAG, 'userAccountNews finish: ', JSON.stringify(currentUserNews))
     return currentUserNews
   }
+
+  async addUserNews(email: string, newsId: string): Promise<number> {
+    let entity: AccountNewsDto = {
+      account_email: email,
+      news_id: newsId
+    }
+    let res = await this.accountNewsDao.addAccountNews(entity)
+    return res
+  }
+
+  async removeUserNews(email: string, newsId: string): Promise<number> {
+    let entity: AccountNewsDto = {
+      account_email: email,
+      news_id: newsId
+    }
+    let res = await this.accountNewsDao.removeAccountNews(entity)
+    return res
+  }
 }

@@ -43,6 +43,17 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
       author: 'author1',
       language: 'language1'
     }
+    const newNews3: NewsDto = {
+      id: 'wdwcw2rk2of32333122',
+      title: 'This is title3',
+      image: 'this is image3',
+      url: 'this is url3',
+      published: 'published3',
+      description: 'description3',
+      category: 'category3',
+      author: 'author3',
+      language: 'language3'
+    }
     const newUser1: NewUserDto = {
       email: 'alf139540fun@gmail.com',
       username: 'alfred',
@@ -69,6 +80,7 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
     }
     const newId1 = await newsDao.addNews(newNews)
     const newId2 = await newsDao.addNews(newNews2)
+    const newId3 = await newsDao.addNews(newNews3)
 
     const newAccountNewsId1 = await accountNewsDao.addAccountNews(newAccountNews1)
     const newAccountNewsId2 = await accountNewsDao.addAccountNews(newAccountNews2)
@@ -101,6 +113,10 @@ export async function runAccountOperations(context: Context): Promise<boolean> {
 
    let res = await accountNewsManager.getUserNews('alf138540fun@gmail.com', newsDao)
     Log.info(Tag, 'Account News Manager method test:', JSON.stringify(res))
+    let res2 = await accountNewsManager.addUserNews('alf138540fun@gmail.com', 'wdwcw2rk2of32333122')
+    Log.info(Tag, 'Account News Manager method add user test:', JSON.stringify(res2))
+    let res3 = await accountNewsManager.getUserNews('alf138540fun@gmail.com', newsDao)
+    Log.info(Tag, 'Account News Manager method after add user:', JSON.stringify(res3))
 
     if (userByEmail1.length === 0) {
       Log.info(Tag, 'user1 not exist')
