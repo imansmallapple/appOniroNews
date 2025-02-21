@@ -8,9 +8,12 @@ import Storage from '../preference/Storage'
 import common from '@ohos.app.ability.common'
 import NewsItem from '../component/newsItem'
 import { runAccountOperations } from '../methods/account'
-import { NewsManager } from '../methods/news'
+import { NewsManager, runNewsOperations } from '../methods/news'
 import { AccountNewsManager } from '../methods/accountNews'
 import Log from '../utils/Log'
+import { OniroNewsDB } from '../database/OniroNewsDB'
+import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
+import { NewsDto } from '../database/dto/News/NewsDto'
 
 let context = getContext(this) as common.UIAbilityContext;
 
@@ -49,15 +52,30 @@ struct Index {
   // database
   private newsManager: NewsManager = new NewsManager(context)
   private accountNewsManager: AccountNewsManager = new AccountNewsManager(context)
+  private dbInstance!: OniroNewsDB
+  private newsDao!: NewsDaoRdb
   // user info
   // todo: unblock it later
   // @State email: string = ''
   private email: string = 'alf13850fun@gmail.com'
   @State savedNewsId: string[] = []
+  @State currentUserNews: NewsDto[] = []
+
+  async getUserNews(id: string): Promise<NewsDto> {
+    let res: NewsDto[] = await this.newsDao.getNewsById(id)
+    let toPush: NewsDto = res.pop() as NewsDto
+    Log.info('check getUserNews', `get news with id${id}:`, toPush)
+    this.currentUserNews.push(toPush)
+    Log.info('check getUserNews', `check currnet user news list:`, this.currentUserNews)
+    return res.pop() as NewsDto
+  }
 
   async aboutToAppear(): Promise<void> {
-    // runAccountOperations(context)
-
+    // runNewsOperations(context)
+    this.dbInstance = await OniroNewsDB.getInstance(context)
+    this.newsDao = new NewsDaoRdb(this.dbInstance)
+    Log.info('test render', this.dbInstance, this.newsDao)
+    Log.info('saved news id', this.savedNewsId)
     // todo: unblock it later
     // let res: RouterParams = router.getParams() as RouterParams
     // this.email = res.email
@@ -80,18 +98,71 @@ struct Index {
         Log.info('test string res3 savedNewsId', this.savedNewsId)
 
         // todo: push all recent news into news database
+        this.savedNewsId.forEach((id: string) => {
+          this.getUserNews(id)
+        })
         // this.latestNews.forEach((item) => {
         //   this.newsManager.addNews(item)
         // })
         // let res = this.newsManager.getAllNews()
         // Log.info('test string res all news:', JSON.stringify(res))
-        await Promise.all(this.latestNews.map((item) => this.newsManager.addNews(item)))
-        try {
-          let res = await this.newsManager.getAllNews()
-          Log.info('test string res all news:', JSON.stringify(res))
-        } catch (error) {
-          Log.error('test string res all news ERROR:', error)
-        }
+        // await Promise.all(this.latestNews.map((item) => {
+        // let dto = this.newsManager.newsToDto(item)
+        //   this.newsDao.addNews(dto)
+        // }))
+        // const newNews1: NewsDto = {
+        //   id: 'wdwcw2rk2of32',
+        //   title: 'This is title1',
+        //   image: 'this is image1',
+        //   url: 'this is url1',
+        //   published: 'published1',
+        //   description: 'description1',
+        //   category: 'category1',
+        //   author: 'author1',
+        //   language: 'language1'
+        // }
+        // const newNews2: NewsDto = {
+        //   id: 'wdwcw2rk2of3222',
+        //   title: 'This is title2',
+        //   image: 'this is image2',
+        //   url: 'this is url2',
+        //   published: 'published2',
+        //   description: 'description2',
+        //   category: 'category2',
+        //   author: 'author2',
+        //   language: 'language2'
+        // }
+        // const newNews3: NewsDto = {
+        //   id: 'wdwcw2rk2of3222',
+        //   title: 'This is title2',
+        //   image: 'this is image2',
+        //   url: 'this is url2',
+        //   published: 'published2',
+        //   description: 'description2',
+        //   category: 'category2',
+        //   author: 'author2',
+        //   language: 'language2'
+        // }
+        // const addId1 = await this.newsDao.addNews(newNews1)
+        // const addId2 = await this.newsDao.addNews(newNews2)
+        // const addId3 = await this.newsDao.addNews(newNews3)
+        // let Tag = 'test inset'
+        // Log.info(Tag, 'Inserted news with ID:', addId1)
+        // Log.info(Tag, 'Inserted news with ID:', addId2)
+        // Log.info(Tag, 'Inserted news with ID:', addId3)
+        // const allNews = await this.newsDao.getAllNews()
+        // Log.info(Tag, `All news length:`, allNews.length)
+        // allNews.forEach((item, number) => {
+        //   Log.info(Tag, `All news ${number}:`, JSON.stringify(item))
+        // })
+        // const newsById = await this.newsDao.getNewsById('wdwcw2rk2of32')
+        // Log.info(Tag, 'News with ID wdwcw2rk2of32:', newsById)
+        // try {
+        //   let res = await this.newsDao.getAllNews()
+        //   Log.info('test string res all news:', JSON.stringify(res))
+        // } catch (error) {
+        //   Log.error('test string res all news ERROR:', error)
+        // }
 
       } else {
         this.isLoading = false
@@ -224,6 +295,10 @@ struct Index {
       } else {
         Stack() {
           Column() {
+            Button('Show save news id')
+              .onClick(() => {
+                Log.info('check savedNewsId in index', this.savedNewsId)
+              })
             Row({ space: 10 }) {
               List() {
                 ForEach(this.categories, (item: string) => {
@@ -263,7 +338,9 @@ struct Index {
                         newsManager: this.newsManager,
                         accountNewsManager: this.accountNewsManager,
                         currentUserEmail: this.email,
-                        savedNewsId: $savedNewsId
+                        savedNewsId: $savedNewsId,
+                        newsDao: this.newsDao,
+                        currentUserNews: $currentUserNews
                       })
                     }
                     .margin({ bottom: 40 })
@@ -343,7 +420,9 @@ struct Index {
                   email: this.email,
                   accountNewsManager: this.accountNewsManager,
                   newsManager: this.newsManager,
-                  savedNewsId: this.savedNewsId
+                  savedNewsId: this.savedNewsId,
+                  newsDao: this.newsDao,
+                  currentUserNews: this.currentUserNews
                 }
               })
             })

@@ -56,8 +56,8 @@ export async function runNewsOperations(context: Context) {
     allNews.forEach((item, number) => {
       Log.info(Tag, `All news ${number}:`, JSON.stringify(item))
     })
-    const newsById = await newsDao.getNewsById('wdwcw2rk2of3')
-    Log.info(Tag, 'News with ID wdwcw2rk2of3:', newsById)
+    const newsById = await newsDao.getNewsById('wdwcw2rk2of32')
+    Log.info(Tag, 'News with ID wdwcw2rk2of32:', newsById)
     // const addId = await newsDao.addNews(newNews)
     // const addId = await newsDao.addNews(newNews)
   } catch (error) {
@@ -104,6 +104,7 @@ export class NewsManager {
   //   Log.info('test string inside fuc add', res)
   //   return res
   // }
+  // todo: Check add news implementation
   async addNews(item: News): Promise<number> {
     let newsDto: NewsDto = this.newsToDto(item)
     // newsDto ok

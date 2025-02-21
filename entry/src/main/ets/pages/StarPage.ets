@@ -3,12 +3,15 @@ import router from '@ohos.router'
 import { NewsDto } from '../database/dto/News/NewsDto'
 import { NewsManager } from '../methods/news'
 import Log from '../utils/Log'
+import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 
 interface RouterParams {
   email: string
   accountNewsManager: AccountNewsManager
   newsManager: NewsManager
   savedNewsId: string[]
+  newsDao: NewsDaoRdb
+  currentUserNews: NewsDto[]
 }
 
 const Tag: string = 'Test saved news'
@@ -19,45 +22,38 @@ struct StarPage {
   private email: string = ''
   private accountNewsManager!: AccountNewsManager
   private newsManager !: NewsManager
+  private newsDao !: NewsDaoRdb
   @State message: string = ''
   @State savedNewsId: string[] = []
   @State SavedNews: NewsDto[] = []
+  private scroller: Scroller = new Scroller()
+  @State cardColor: string = '#ffe4f3f3'
+  @State txtColor: string = '#ff000000'
+  @State authorTimeColor: string = '#56000000'
+
+  async getUserAllNews(): Promise<NewsDto[]> {
+    try {
+      const res: NewsDto[] = await this.newsDao.getAllNews()
+      Log.info(Tag, 'User all news:', res)
+      return res
+    }
+    catch (error) {
+      Log.error(Tag, 'error: ', JSON.stringify(error))
+      return []
+    }
+  }
 
   async aboutToAppear(): Promise<void> {
     let res: RouterParams = router.getParams() as RouterParams
     this.email = res.email
     this.accountNewsManager = res.accountNewsManager
     this.savedNewsId = res.savedNewsId
+    this.newsDao = res.newsDao
+    this.SavedNews = res.currentUserNews
     Log.info('Test Star', 'About To Appear')
     Log.info('Test Star', res)
     Log.info('Test Star saved news ids: ', this.savedNewsId)
-    // this.savedNewsId.forEach(async (id: string) => {
-    //   let res = await this.newsManager.getNewsById(id)
-    //  this.SavedNews.push(res.pop() as NewsDto)
-    // })
-    // Log.info('Test Star this.SavedNews: ', this.SavedNews)
-
-    for (const id of this.savedNewsId) {
-      let res = await this.newsManager.getNewsById(id);
-      this.SavedNews.push(res.pop() as NewsDto);
-    }
-
-    Log.info('Test Star this.SavedNews: ', JSON.stringify(this.SavedNews));
-  }
-
-  // async testGet() {
-  //   this.savedNewsIds = await this.accountNewsManager.getUserNews(this.email)
-  //   Log.info('Test Star', JSON.stringify(this.savedNewsIds))
-  // }
-
-  async onPageShow(): Promise<void> {
-    // Log.info('Test Star', 'On Page Show')
-    // let res2: NewsDto[] = await this.accountNewsManager.getUserNews(this.email, this.newsManager)
-    // this.savedNews = res2
-    // Log.info('Test Star', JSON.stringify(res2))
-    // this.message = JSON.stringify(this.savedNews)
-    // Log.info('Test Star', 'On Page Show')
-    // Log.info('Test Star', JSON.stringify(this.savedNews))
+    Log.info('Test Star this.SavedNews: ', this.SavedNews)
   }
 
   async showAllNews(email: string) {
@@ -67,15 +63,76 @@ struct StarPage {
 
   build() {
     Column() {
-      Text(`message: ${this.message}`)
-      Button('test')
-        .onClick(() => {
-          Log.info(Tag, 'email:', this.email)
-          this.showAllNews(this.email)
-          // this.testGet()
-          // let res = await this.accountNewsManager.getUserNews('alf138540fun@gmail.com', this.newsManager)
-          // Log.info('Test Star', 'Account News Manager method test:', JSON.stringify(res))
-        })
+      Scroll() {
+        Column() {
+          List({ scroller: this.scroller }) {
+            ForEach(this.SavedNews, (item: NewsDto) => {
+              ListItem() {
+                Column() {
+                  Column() {
+                    Column() {
+                      Image(item.image)
+                        .width('100%')
+                        .objectFit(ImageFit.Contain)
+                        .borderRadius({ topLeft: 10, topRight: 10 })
+                      Row() {
+                        Text(item.title)
+                          .fontSize(20)
+                          .fontWeight(700)
+                          .fontColor(this.txtColor)
+                      }
+                      .width('100%')
+                      .padding(10)
+                    }
+                    .onClick(() => {
+                      router.pushUrl({
+                        url: "pages/NewsDetail",
+                        params: item
+                      })
+                    })
+                  }
+                  .width('100%')
+
+                  Row({ space: 10 }) {
+                    Text(item.author)
+                      .fontSize(15)
+                      .fontWeight(FontWeight.Normal)
+                      .fontColor(this.authorTimeColor)
+                      .padding(10)
+                  }
+                  .justifyContent(FlexAlign.Start)
+                  .width('100%')
+
+                  // Description
+                  Row() {
+                    Text(item.description)
+                      .width('100%')
+                      .fontColor(this.txtColor)
+                  }
+                  .padding(10)
+
+                  .width('100%')
+                  .height('7%')
+                  .justifyContent(FlexAlign.Start)
+                  .alignItems(VerticalAlign.Center)
+                  .margin({ left: 10 })
+                }
+                .width('100%')
+              }
+              .margin({ bottom: 40 })
+              .backgroundColor(this.cardColor)
+              .borderRadius(10)
+            })
+          }
+          .width('90%')
+        }
+        .width('100%')
+        .alignItems(HorizontalAlign.Center)
+      }
+      .width('100%')
+      .height('92%')
+      .align(Alignment.Top)
+      .zIndex(0)
     }
     .width('100%')
     .height('100%')

@@ -1,11 +1,11 @@
 export interface NewsDto {
   id: string
   title: string
-  image: string
-  url: string
-  published: string
   description: string
-  category: string
+  url: string
   author: string
+  image: string
   language: string
+  category: string
+  published: string
 }
