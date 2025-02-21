@@ -57,14 +57,14 @@ struct Index {
   // user info
   // todo: unblock it later
   // @State email: string = ''
-  private email: string = 'alf13850fun@gmail.com'
+  private email: string = ''
   @State savedNewsId: string[] = []
   @State currentUserNews: NewsDto[] = []
 
   async getUserNews(id: string): Promise<NewsDto> {
     let res: NewsDto[] = await this.newsDao.getNewsById(id)
     let toPush: NewsDto = res.pop() as NewsDto
-    Log.info('check getUserNews', `get news with id${id}:`, toPush)
+    Log.info('check getUserNews', `get news with id ${id}:`, toPush)
     this.currentUserNews.push(toPush)
     Log.info('check getUserNews', `check currnet user news list:`, this.currentUserNews)
     return res.pop() as NewsDto
@@ -76,9 +76,8 @@ struct Index {
     this.newsDao = new NewsDaoRdb(this.dbInstance)
     Log.info('test render', this.dbInstance, this.newsDao)
     Log.info('saved news id', this.savedNewsId)
-    // todo: unblock it later
-    // let res: RouterParams = router.getParams() as RouterParams
-    // this.email = res.email
+    let res: RouterParams = router.getParams() as RouterParams
+    this.email = res.email
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
     this.isLoading = true
