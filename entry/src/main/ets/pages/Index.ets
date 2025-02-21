@@ -2,13 +2,11 @@ import { DataSource } from '../data/DataSource'
 import { NewsResponse, News } from '../model/news'
 import { CategoryResponse } from '../model/categories'
 import router from '@ohos.router'
-import { timeFormatModify } from '../utils/timeUtil'
 import { HttpErrorComponent, LoadComponent } from '../component/components'
 import Storage from '../preference/Storage'
 import common from '@ohos.app.ability.common'
 import NewsItem from '../component/newsItem'
-import { runAccountOperations } from '../methods/account'
-import { NewsManager, runNewsOperations } from '../methods/news'
+import { NewsManager } from '../methods/news'
 import { AccountNewsManager } from '../methods/accountNews'
 import Log from '../utils/Log'
 import { OniroNewsDB } from '../database/OniroNewsDB'
@@ -56,9 +54,7 @@ struct Index {
   private dbInstance!: OniroNewsDB
   private newsDao!: NewsDaoRdb
   // user info
-  // todo: unblock it later
-  // @State email: string = ''
-  private email: string = 'alf138540fun@gmail.com'
+  @State email: string = ''
   @State savedNewsId: string[] = []
   @State currentUserNews: NewsDto[] = []
 
@@ -71,15 +67,38 @@ struct Index {
     return res.pop() as NewsDto
   }
 
+  async addNewsFromIdList(): Promise<void> {
+    let res3 = await this.accountNewsManager.getUserNews(this.email)
+    this.savedNewsId = res3
+    Log.info('onpageshow index get user news id', res3)
+
+    // get currentUserNews ID set, avoid repeat adding
+    let existingNewsIds = new Set(this.currentUserNews.map(news => news.id))
+
+    // iterate `savedNewsId`, if `currentUserNews` don't exist such news, get and add
+    for (let id of this.savedNewsId) {
+      if (!existingNewsIds.has(id)) {
+        let newsItem = await this.getUserNews(id)
+        if (newsItem) {
+          this.currentUserNews.push(newsItem)
+          existingNewsIds.add(id) // add to Set avoid repeat
+        }
+      }
+    }
+  }
+
+  async onPageShow(): Promise<void> {
+    this.addNewsFromIdList()
+    Log.info('onpageshow index updated user news list', this.currentUserNews)
+  }
+
   async aboutToAppear(): Promise<void> {
-    // runNewsOperations(context)
     this.dbInstance = await OniroNewsDB.getInstance(context)
     this.newsDao = new NewsDaoRdb(this.dbInstance)
     Log.info('test render', this.dbInstance, this.newsDao)
     Log.info('saved news id', this.savedNewsId)
-    // todo: Unblock it later
-    // let res: RouterParams = router.getParams() as RouterParams
-    // this.email = res.email
+    let res: RouterParams = router.getParams() as RouterParams
+    this.email = res.email
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
     this.isLoading = true
@@ -98,9 +117,7 @@ struct Index {
         Log.info('test string res3', res3)
         Log.info('test string res3 savedNewsId', this.savedNewsId)
 
-        this.savedNewsId.forEach((id: string) => {
-          this.getUserNews(id)
-        })
+        this.addNewsFromIdList()
       } else {
         this.isLoading = false
         this.isHttpError = true
@@ -380,7 +397,14 @@ struct Index {
             })
             this.floatIconBuilder($r('app.media.icon_search'), () => {
               router.pushUrl({
-                url: 'pages/SearchPage'
+                url: 'pages/SearchPage',
+                params: {
+                  currentUserEmail: this.email,
+                  savedNewsId: this.savedNewsId,
+                  currentUserNews: this.currentUserNews,
+                  txtColor: this.txtColor,
+                  authorTimeColor: this.authorTimeColor
+                }
               })
             })
           }

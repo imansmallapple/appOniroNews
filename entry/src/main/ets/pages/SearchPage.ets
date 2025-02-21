@@ -7,6 +7,21 @@ import { Callback } from '@ohos.base'
 import { LoadComponent, EmptyComponent } from '../component/components'
 import { spaceToPlus } from '../utils/searchUtil'
 import Storage from '../preference/Storage'
+import NewsItem from '../component/newsItem'
+import { AccountNewsManager } from '../methods/accountNews'
+import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
+import { NewsDto } from '../database/dto/News/NewsDto'
+import { OniroNewsDB } from '../database/OniroNewsDB'
+import common from '@ohos.app.ability.common'
+
+interface RouterParams {
+  currentUserEmail: string,
+  savedNewsId: string[],
+  currentUserNews: NewsDto[],
+  txtColor: string,
+  authorTimeColor: string
+}
+let context = getContext(this) as common.UIAbilityContext;
 
 @Entry
 @Component
@@ -52,8 +67,28 @@ struct SearchPage {
   @State searchBarBorderColor: string = '#46000000'
   @State topBarBgColor: string = '#ffe4f3f3'
   @State isBlack: boolean = false
+  //router params
+  private accountNewsManager: AccountNewsManager = new AccountNewsManager(context)
+  private currentUserEmail!: string
+  @State savedNewsId: string[] = []
+  private newsDao!: NewsDaoRdb
+  @State currentUserNews: NewsDto[] = []
+  private dbInstance!: OniroNewsDB
+
+  async onPageShow(): Promise<void> {
+    Log.info('onpageshow search', this.currentUserNews)
+  }
+
 
   async aboutToAppear(): Promise<void> {
+    Log.info('onpageshow abouttoappear', this.currentUserNews)
+    this.dbInstance = await OniroNewsDB.getInstance(context)
+    this.newsDao = new NewsDaoRdb(this.dbInstance)
+    let res: RouterParams = router.getParams() as RouterParams
+    this.currentUserEmail = res.currentUserEmail
+    this.savedNewsId = res.savedNewsId
+    this.currentUserNews = res.currentUserNews
+
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
     if (temp.length !== 0) {
       this.bgColor = temp[temp.length-10]
@@ -310,71 +345,81 @@ struct SearchPage {
               List() {
                 ForEach(this.searchedNews, (item: News) => {
                   ListItem() {
-                    Column() {
-                      Column() {
-                        Column() {
-                          Image(item.image)
-                            .width('100%')
-                            .objectFit(ImageFit.Contain)
-                            .borderRadius({ topLeft: 10, topRight: 10 })
-                          Row() {
-                            Text(item.title)
-                              .fontSize(20)
-                              .fontWeight(700)
-                              .fontColor(this.txtColor)
-                          }
-                          .width('100%')
-                          .padding(10)
-                        }
-                        .onClick(() => {
-                          router.pushUrl({
-                            url: "pages/NewsDetail",
-                            params: item
-                          })
-                        })
-                      }
-                      .width('100%')
-
-                      Row({ space: 10 }) {
-                        Text(item.author)
-                          .fontSize(15)
-                          .fontWeight(FontWeight.Normal)
-                          .padding(10)
-                          .fontColor(this.authorTimeColor)
-                      }
-                      .justifyContent(FlexAlign.Start)
-                      .width('100%')
-
-                      // Description
-                      Row() {
-                        Text(item.description)
-                          .width('100%')
-                          .fontColor(this.txtColor)
-                      }
-                      .padding(10)
-
-                      Row({ space: 10 }) {
-                        Image($r('app.media.icon_stared'))
-                          .width(25)
-                        Image($r('app.media.icon_link'))
-                          .width(20)
-
-                        Row() {
-                          Text(timeFormatModify(item.published))
-                            .fontSize(15)
-                            .fontColor(this.authorTimeColor)
-                        }
-                        .layoutWeight(1)
-                        .justifyContent(FlexAlign.End)
-                        .padding(10)
-                      }
-                      .width('100%')
-                      .height('7%')
-                      .justifyContent(FlexAlign.Start)
-                      .alignItems(VerticalAlign.Center)
-                      .margin({ left: 10 })
-                    }
-                    .width('100%')
+                    NewsItem({
+                      item: item,
+                      accountNewsManager: this.accountNewsManager,
+                      currentUserEmail: this.currentUserEmail,
+                      savedNewsId: $savedNewsId,
+                      newsDao: this.newsDao,
+                      currentUserNews: $currentUserNews,
+                      txtColor: $txtColor,
+                      authorTimeColor: $authorTimeColor
+                    })
+                    // Column() {
+                    //   Column() {
+                    //     Column() {
+                    //       Image(item.image)
+                    //         .width('100%')
+                    //         .objectFit(ImageFit.Contain)
+                    //         .borderRadius({ topLeft: 10, topRight: 10 })
+                    //       Row() {
+                    //         Text(item.title)
+                    //           .fontSize(20)
+                    //           .fontWeight(700)
+                    //           .fontColor(this.txtColor)
+                    //       }
+                    //       .width('100%')
+                    //       .padding(10)
+                    //     }
+                    //     .onClick(() => {
+                    //       router.pushUrl({
+                    //         url: "pages/NewsDetail",
+                    //         params: item
+                    //       })
+                    //     })
+                    //   }
+                    //   .width('100%')
+                    //
+                    //   Row({ space: 10 }) {
+                    //     Text(item.author)
+                    //       .fontSize(15)
+                    //       .fontWeight(FontWeight.Normal)
+                    //       .padding(10)
+                    //       .fontColor(this.authorTimeColor)
+                    //   }
+                    //   .justifyContent(FlexAlign.Start)
+                    //   .width('100%')
+                    //
+                    //   // Description
+                    //   Row() {
+                    //     Text(item.description)
+                    //       .width('100%')
+                    //       .fontColor(this.txtColor)
+                    //   }
+                    //   .padding(10)
+                    //
+                    //   Row({ space: 10 }) {
+                    //     Image($r('app.media.icon_stared'))
+                    //       .width(25)
+                    //     Image($r('app.media.icon_link'))
+                    //       .width(20)
+                    //
+                    //     Row() {
+                    //       Text(timeFormatModify(item.published))
+                    //         .fontSize(15)
+                    //         .fontColor(this.authorTimeColor)
+                    //     }
+                    //     .layoutWeight(1)
+                    //     .justifyContent(FlexAlign.End)
+                    //     .padding(10)
+                    //   }
+                    //   .width('100%')
+                    //   .height('7%')
+                    //   .justifyContent(FlexAlign.Start)
+                    //   .alignItems(VerticalAlign.Center)
+                    //   .margin({ left: 10 })
+                    // }
+                    // .width('100%')
                   }
                   .margin({ bottom: 40 })
                   .backgroundColor(this.cardColor)

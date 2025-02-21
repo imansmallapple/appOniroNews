@@ -29,7 +29,7 @@ struct StarPage {
   private newsDao !: NewsDaoRdb
   @State message: string = ''
   @State savedNewsId: string[] = []
-  @State SavedNews: NewsDto[] = []
+  @State currentUserNews: NewsDto[] = []
   private scroller: Scroller = new Scroller()
   //Preferences
   private localStorage = new Storage()
@@ -64,11 +64,11 @@ struct StarPage {
     this.accountNewsManager = res.accountNewsManager
     this.savedNewsId = res.savedNewsId
     this.newsDao = res.newsDao
-    this.SavedNews = res.currentUserNews
+    this.currentUserNews = res.currentUserNews
     Log.info('Test Star', 'About To Appear')
     Log.info('Test Star', res)
     Log.info('Test Star saved news ids: ', this.savedNewsId)
-    Log.info('Test Star this.SavedNews: ', this.SavedNews)
+    Log.info('Test Star this.SavedNews: ', this.currentUserNews)
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
     if (temp.length !== 0) {
@@ -113,73 +113,73 @@ struct StarPage {
 
   build() {
     Column() {
-      if (this.SavedNews.length == 0) {
+      if (this.currentUserNews.length == 0) {
         EmptyComponent()
       } else {
         Scroll() {
           Column() {
             List({ scroller: this.scroller }) {
-              ForEach(this.SavedNews, (dto: NewsDto) => {
+              ForEach(this.currentUserNews, (item: NewsDto) => {
                 ListItem() {
-                  NewsItem({
-                    item: this.dtoToNews(dto),
-                    newsManager: this.newsManager,
-                    accountNewsManager: this.accountNewsManager,
-                    currentUserEmail: this.email,
-                    savedNewsId: $savedNewsId,
-                    newsDao: this.newsDao,
-                    currentUserNews: $SavedNews,
-                    txtColor: $txtColor,
-                    authorTimeColor: $authorTimeColor
-                  })
-                  // Column() {
-                  //   Column() {
-                  //     Column() {
-                  //       Image(item.image)
-                  //         .width('100%')
-                  //         .objectFit(ImageFit.Contain)
-                  //         .borderRadius({ topLeft: 10, topRight: 10 })
-                  //       Row() {
-                  //         Text(item.title)
-                  //           .fontSize(20)
-                  //           .fontWeight(700)
-                  //           .fontColor(this.txtColor)
-                  //       }
-                  //       .width('100%')
-                  //       .padding(10)
-                  //     }
-                  //     .onClick(() => {
-                  //       router.pushUrl({
-                  //         url: "pages/NewsDetail",
-                  //         params: item
-                  //       })
-                  //     })
-                  //   }
-                  //   .width('100%')
-                  //
-                  //   Row({ space: 10 }) {
-                  //     Text(item.author)
-                  //       .fontSize(15)
-                  //       .fontWeight(FontWeight.Normal)
-                  //       .fontColor(this.authorTimeColor)
-                  //       .padding(10)
-                  //   }
-                  //   .justifyContent(FlexAlign.Start)
-                  //   .width('100%')
-                  //
-                  //   // Description
-                  //   Row() {
-                  //     Text(item.description)
-                  //       .width('100%')
-                  //       .fontColor(this.txtColor)
-                  //   }
-                  //   .padding(10)
-                  //   .width('100%')
-                  //   .justifyContent(FlexAlign.Start)
-                  //   .alignItems(VerticalAlign.Center)
-                  //   .margin({ left: 10 })
-                  // }
-                  // .width('100%')
+                  // NewsItem({
+                  //   item: this.dtoToNews(dto),
+                  //   newsManager: this.newsManager,
+                  //   accountNewsManager: this.accountNewsManager,
+                  //   currentUserEmail: this.email,
+                  //   savedNewsId: $savedNewsId,
+                  //   newsDao: this.newsDao,
+                  //   currentUserNews: $currentUserNews,
+                  //   txtColor: $txtColor,
+                  //   authorTimeColor: $authorTimeColor
+                  // })
+                  Column() {
+                    Column() {
+                      Column() {
+                        Image(item.image)
+                          .width('100%')
+                          .objectFit(ImageFit.Contain)
+                          .borderRadius({ topLeft: 10, topRight: 10 })
+                        Row() {
+                          Text(item.title)
+                            .fontSize(20)
+                            .fontWeight(700)
+                            .fontColor(this.txtColor)
+                        }
+                        .width('100%')
+                        .padding(10)
+                      }
+                      .onClick(() => {
+                        router.pushUrl({
+                          url: "pages/NewsDetail",
+                          params: item
+                        })
+                      })
+                    }
+                    .width('100%')
+
+                    Row({ space: 10 }) {
+                      Text(item.author)
+                        .fontSize(15)
+                        .fontWeight(FontWeight.Normal)
+                        .fontColor(this.authorTimeColor)
+                        .padding(10)
+                    }
+                    .justifyContent(FlexAlign.Start)
+                    .width('100%')
+
+                    // Description
+                    Row() {
+                      Text(item.description)
+                        .width('100%')
+                        .fontColor(this.txtColor)
+                    }
+                    .padding(10)
+                    .width('100%')
+                    .justifyContent(FlexAlign.Start)
+                    .alignItems(VerticalAlign.Center)
+                    .margin({ left: 10 })
+                  }
+                  .width('100%')
                 }
                 .margin({ bottom: 40 })
                 .backgroundColor(this.cardColor)

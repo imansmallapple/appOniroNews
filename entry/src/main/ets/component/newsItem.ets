@@ -91,7 +91,7 @@ export default struct NewsItem {
   }
 
   checkCurrentUserNews() {
-    Log.info(Tag, this.currentUserNews)
+    Log.info(Tag,'checkCurrentUserNews: ', this.currentUserNews)
   }
 
   async pushNews(item: News): Promise<boolean> {

@@ -6,7 +6,7 @@ import hilog from '@ohos.hilog'
 import { CategoryResponse } from '../model/categories'
 
 const BaseUrl = 'https://api.currentsapi.services'
-const key = 'Eg_5qbw7G1byzAwGqffkMLnp61rDmuDqqjc0ekYmgsyMgF6y'
+const key = 'qw_LG11_yGuudKuQ-XxJSkdqNvQhb36Kc6Evb0dfeXWHdEWy'
 const LatestNewsUrl = BaseUrl + '/v1/latest-news'
 const SearchNews = BaseUrl + '/v1/search'
 
