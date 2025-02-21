@@ -57,7 +57,7 @@ struct Index {
   // user info
   // todo: unblock it later
   // @State email: string = ''
-  private email: string = ''
+  private email: string = 'alf138540fun@gmail.com'
   @State savedNewsId: string[] = []
   @State currentUserNews: NewsDto[] = []
 
@@ -76,8 +76,9 @@ struct Index {
     this.newsDao = new NewsDaoRdb(this.dbInstance)
     Log.info('test render', this.dbInstance, this.newsDao)
     Log.info('saved news id', this.savedNewsId)
-    let res: RouterParams = router.getParams() as RouterParams
-    this.email = res.email
+    // todo: Unblock it later
+    // let res: RouterParams = router.getParams() as RouterParams
+    // this.email = res.email
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
     this.isLoading = true
@@ -96,73 +97,9 @@ struct Index {
         Log.info('test string res3', res3)
         Log.info('test string res3 savedNewsId', this.savedNewsId)
 
-        // todo: push all recent news into news database
         this.savedNewsId.forEach((id: string) => {
           this.getUserNews(id)
         })
-        // this.latestNews.forEach((item) => {
-        //   this.newsManager.addNews(item)
-        // })
-        // let res = this.newsManager.getAllNews()
-        // Log.info('test string res all news:', JSON.stringify(res))
-        // await Promise.all(this.latestNews.map((item) => {
-        // let dto = this.newsManager.newsToDto(item)
-        //   this.newsDao.addNews(dto)
-        // }))
-        // const newNews1: NewsDto = {
-        //   id: 'wdwcw2rk2of32',
-        //   title: 'This is title1',
-        //   image: 'this is image1',
-        //   url: 'this is url1',
-        //   published: 'published1',
-        //   description: 'description1',
-        //   category: 'category1',
-        //   author: 'author1',
-        //   language: 'language1'
-        // }
-        // const newNews2: NewsDto = {
-        //   id: 'wdwcw2rk2of3222',
-        //   title: 'This is title2',
-        //   image: 'this is image2',
-        //   url: 'this is url2',
-        //   published: 'published2',
-        //   description: 'description2',
-        //   category: 'category2',
-        //   author: 'author2',
-        //   language: 'language2'
-        // }
-        // const newNews3: NewsDto = {
-        //   id: 'wdwcw2rk2of3222',
-        //   title: 'This is title2',
-        //   image: 'this is image2',
-        //   url: 'this is url2',
-        //   published: 'published2',
-        //   description: 'description2',
-        //   category: 'category2',
-        //   author: 'author2',
-        //   language: 'language2'
-        // }
-        // const addId1 = await this.newsDao.addNews(newNews1)
-        // const addId2 = await this.newsDao.addNews(newNews2)
-        // const addId3 = await this.newsDao.addNews(newNews3)
-        // let Tag = 'test inset'
-        // Log.info(Tag, 'Inserted news with ID:', addId1)
-        // Log.info(Tag, 'Inserted news with ID:', addId2)
-        // Log.info(Tag, 'Inserted news with ID:', addId3)
-        // const allNews = await this.newsDao.getAllNews()
-        // Log.info(Tag, `All news length:`, allNews.length)
-        // allNews.forEach((item, number) => {
-        //   Log.info(Tag, `All news ${number}:`, JSON.stringify(item))
-        // })
-        // const newsById = await this.newsDao.getNewsById('wdwcw2rk2of32')
-        // Log.info(Tag, 'News with ID wdwcw2rk2of32:', newsById)
-        // try {
-        //   let res = await this.newsDao.getAllNews()
-        //   Log.info('test string res all news:', JSON.stringify(res))
-        // } catch (error) {
-        //   Log.error('test string res all news ERROR:', error)
-        // }
-
       } else {
         this.isLoading = false
         this.isHttpError = true
@@ -294,10 +231,6 @@ struct Index {
       } else {
         Stack() {
           Column() {
-            Button('Show save news id')
-              .onClick(() => {
-                Log.info('check savedNewsId in index', this.savedNewsId)
-              })
             Row({ space: 10 }) {
               List() {
                 ForEach(this.categories, (item: string) => {
@@ -339,7 +272,9 @@ struct Index {
                         currentUserEmail: this.email,
                         savedNewsId: $savedNewsId,
                         newsDao: this.newsDao,
-                        currentUserNews: $currentUserNews
+                        currentUserNews: $currentUserNews,
+                        txtColor: $txtColor,
+                        authorTimeColor: $authorTimeColor
                       })
                     }
                     .margin({ bottom: 40 })

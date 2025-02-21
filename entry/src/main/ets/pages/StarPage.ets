@@ -4,6 +4,8 @@ import { NewsDto } from '../database/dto/News/NewsDto'
 import { NewsManager } from '../methods/news'
 import Log from '../utils/Log'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
+import { EmptyComponent } from '../component/components'
+import Storage from '../preference/Storage'
 
 interface RouterParams {
   email: string
@@ -27,9 +29,18 @@ struct StarPage {
   @State savedNewsId: string[] = []
   @State SavedNews: NewsDto[] = []
   private scroller: Scroller = new Scroller()
-  @State cardColor: string = '#ffe4f3f3'
+  @State bgColor: string = '#ffffffff'
   @State txtColor: string = '#ff000000'
+  @State cardColor: string = '#ffe4f3f3'
   @State authorTimeColor: string = '#56000000'
+  @State cateTxtColor: string = '#56000000'
+  @State cateBgColor: string = '#fff5f1f1'
+  @State searchBarBgColor: string = '#ffffffff'
+  @State searchBarPlaceholderColor: string = '#b0918383'
+  @State searchBarBorderColor: string = '#46000000'
+  @State topBarBgColor: string = '#ffe4f3f3'
+  @State isBlack: boolean = false
+  private localStorage = new Storage()
 
   async getUserAllNews(): Promise<NewsDto[]> {
     try {
@@ -50,10 +61,30 @@ struct StarPage {
     this.savedNewsId = res.savedNewsId
     this.newsDao = res.newsDao
     this.SavedNews = res.currentUserNews
-    Log.info('Test Star', 'About To Appear')
-    Log.info('Test Star', res)
-    Log.info('Test Star saved news ids: ', this.savedNewsId)
-    Log.info('Test Star this.SavedNews: ', this.SavedNews)
+    // Log.info('Test Star', 'About To Appear')
+    // Log.info('Test Star', res)
+    // Log.info('Test Star saved news ids: ', this.savedNewsId)
+    // Log.info('Test Star this.SavedNews: ', this.SavedNews)
+    let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
+    if (temp.length !== 0) {
+      this.bgColor = temp[temp.length-10]
+      this.txtColor = temp[temp.length-9]
+      this.cardColor = temp[temp.length-8]
+      this.authorTimeColor = temp[temp.length-7]
+      this.cateTxtColor = temp[temp.length-6]
+      this.cateBgColor = temp[temp.length-5]
+      this.searchBarBgColor = temp[temp.length-4]
+      this.searchBarPlaceholderColor = temp[temp.length-3]
+      this.searchBarBorderColor = temp[temp.length-2]
+      this.topBarBgColor = temp[temp.length-1]
+      if (this.bgColor == '#ff000000') {
+        this.isBlack = true
+      } else if (this.bgColor == '#ffffffff') {
+        this.isBlack = false
+      }
+    } else {
+      this.isBlack = false
+    }
   }
 
   async showAllNews(email: string) {
@@ -63,78 +94,81 @@ struct StarPage {
 
   build() {
     Column() {
-      Scroll() {
-        Column() {
-          List({ scroller: this.scroller }) {
-            ForEach(this.SavedNews, (item: NewsDto) => {
-              ListItem() {
-                Column() {
+      if (this.SavedNews.length == 0) {
+        EmptyComponent()
+      } else {
+        Scroll() {
+          Column() {
+            List({ scroller: this.scroller }) {
+              ForEach(this.SavedNews, (item: NewsDto) => {
+                ListItem() {
                   Column() {
                     Column() {
-                      Image(item.image)
+                      Column() {
+                        Image(item.image)
+                          .width('100%')
+                          .objectFit(ImageFit.Contain)
+                          .borderRadius({ topLeft: 10, topRight: 10 })
+                        Row() {
+                          Text(item.title)
+                            .fontSize(20)
+                            .fontWeight(700)
+                            .fontColor(this.txtColor)
+                        }
                         .width('100%')
-                        .objectFit(ImageFit.Contain)
-                        .borderRadius({ topLeft: 10, topRight: 10 })
-                      Row() {
-                        Text(item.title)
-                          .fontSize(20)
-                          .fontWeight(700)
-                          .fontColor(this.txtColor)
+                        .padding(10)
                       }
-                      .width('100%')
-                      .padding(10)
-                    }
-                    .onClick(() => {
-                      router.pushUrl({
-                        url: "pages/NewsDetail",
-                        params: item
+                      .onClick(() => {
+                        router.pushUrl({
+                          url: "pages/NewsDetail",
+                          params: item
+                        })
                       })
-                    })
+                    }
+                    .width('100%')
+
+                    Row({ space: 10 }) {
+                      Text(item.author)
+                        .fontSize(15)
+                        .fontWeight(FontWeight.Normal)
+                        .fontColor(this.authorTimeColor)
+                        .padding(10)
+                    }
+                    .justifyContent(FlexAlign.Start)
+                    .width('100%')
+
+                    // Description
+                    Row() {
+                      Text(item.description)
+                        .width('100%')
+                        .fontColor(this.txtColor)
+                    }
+                    .padding(10)
+                    .width('100%')
+                    .justifyContent(FlexAlign.Start)
+                    .alignItems(VerticalAlign.Center)
+                    .margin({ left: 10 })
                   }
                   .width('100%')
-
-                  Row({ space: 10 }) {
-                    Text(item.author)
-                      .fontSize(15)
-                      .fontWeight(FontWeight.Normal)
-                      .fontColor(this.authorTimeColor)
-                      .padding(10)
-                  }
-                  .justifyContent(FlexAlign.Start)
-                  .width('100%')
-
-                  // Description
-                  Row() {
-                    Text(item.description)
-                      .width('100%')
-                      .fontColor(this.txtColor)
-                  }
-                  .padding(10)
-
-                  .width('100%')
-                  .height('7%')
-                  .justifyContent(FlexAlign.Start)
-                  .alignItems(VerticalAlign.Center)
-                  .margin({ left: 10 })
                 }
-                .width('100%')
-              }
-              .margin({ bottom: 40 })
-              .backgroundColor(this.cardColor)
-              .borderRadius(10)
-            })
+                .margin({ bottom: 40 })
+                .backgroundColor(this.cardColor)
+                .borderRadius(10)
+              })
+            }
+            .width('90%')
           }
-          .width('90%')
+          .width('100%')
+          .alignItems(HorizontalAlign.Center)
         }
         .width('100%')
-        .alignItems(HorizontalAlign.Center)
+        .height('92%')
+        .align(Alignment.Top)
+        .zIndex(0)
       }
-      .width('100%')
-      .height('92%')
-      .align(Alignment.Top)
-      .zIndex(0)
     }
     .width('100%')
     .height('100%')
+    .backgroundColor(this.bgColor)
   }
 }

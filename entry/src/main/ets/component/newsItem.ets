@@ -15,8 +15,10 @@ const Tag = 'Test NewsItem'
 export default struct NewsItem {
   private item!: News
   @State isStared: boolean = false
-  @State authorTimeColor: string = '#56000000'
-  @State txtColor: string = '#ff000000'
+  // @State authorTimeColor: string = '#56000000'
+  // @State txtColor: string = '#ff000000'
+  @Link authorTimeColor: string
+  @Link txtColor: string
   private accountNewsManager!: AccountNewsManager
   private newsManager!: NewsManager
   private currentUserEmail!: string
@@ -31,6 +33,8 @@ export default struct NewsItem {
     // this.savedNewsId.forEach((id: string) => {
     //   this.getUserNews(id)
     // })
+    // todo: Check current item is saved in user's star list or not
+    this.isStared = await this.checkUserNewsExist(this.item.id)
   }
 
   async saveNews(email: string, id: string) {
@@ -50,6 +54,15 @@ export default struct NewsItem {
     catch (error) {
       Log.error(Tag, 'error: ', JSON.stringify(error))
       return []
+    }
+  }
+
+  async checkUserNewsExist(id: string): Promise<boolean> {
+    let res: NewsDto[] = await this.newsDao.getNewsById(id)
+    if (res.length == 0) {
+      return false
+    } else {
+      return true
     }
   }
 
@@ -81,23 +94,8 @@ export default struct NewsItem {
         category: item.category.toString(),
         published: item.published,
       }
-      // const newNews4: NewsDto = {
-      //   id: '511836a8-9726-47a0-8155-3ad7a3552e19',
-      //   title: 'Fear of political meddling grips Malaysia’s legal circles ahead of changes in judiciary leadership',
-      //   description: 'KUALA LUMPUR: A leadership transition is set to strike at the heart of Malaysia’s judiciary in the coming months and how the government pushes ahead with new appointments could have far-reaching ramif...',
-      //   url: 'https://www.channelnewsasia.com/asia/malaysia-legal-chief-justice-appointment-fear-political-meddling-4949201',
-      //   author: 'Leslie Lopez',
-      //   image: 'https://dam.mediacorp.sg/image/upload/s--0Mg17AIt--/c_crop,h_720,w_1280,x_0,y_79/f_auto,q_auto/c_fill,g_auto,h_676,w_1200/v1/mediacorp/cna/image/2025/02/21/tengku_maimun_oly_facebook_malaysian_judiciary.jpg?itok=KK5n_sKx',
-      //   language: 'en',
-      //   category: 'world',
-      //   published: '2025-02-21 09:00:00 +0000',
-      // }
       const addId: number = await this.newsDao.addNews(newNews)
       Log.info(Tag, 'Inserted news with ID:', addId)
-      // const addId2: number = await this.newDao.addNews(newNews4)
-      // Log.info(Tag, 'Inserted news with ID:', addId2)
-      // const addId3: number = await this.newDao.addNews(item)
-      // Log.info(Tag, 'Inserted news with ID:', addId3)
       return true
     } catch (error) {
       Log.error(Tag, 'catch error: ', JSON.stringify(error))
