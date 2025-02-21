@@ -45,6 +45,14 @@ export default struct NewsItem {
     Log.info(Tag, 'savedNewsId:', JSON.stringify(this.savedNewsId))
   }
 
+  async removeNews(email: string, id: string){
+    this.accountNewsManager.removeUserNews(email, id)
+    let res = await this.accountNewsManager.getUserNews(email)
+    Log.info('check getUserNews', 'user all news id:', JSON.stringify(res))
+    this.savedNewsId = res
+    Log.info(Tag, 'savedNewsId:', JSON.stringify(this.savedNewsId))
+  }
+
   async getUserAllNews(): Promise<NewsDto[]> {
     try {
       const res: NewsDto[] = await this.newsDao.getAllNews()
@@ -73,6 +81,14 @@ export default struct NewsItem {
     this.currentUserNews.push(toPush)
     Log.info('check getUserNews', `check currnet user news list:`, this.currentUserNews)
     return res.pop() as NewsDto
+  }
+
+  async popUserNews(id: string) {
+    let res: NewsDto[] = await this.newsDao.getNewsById(id)
+    let toPop: NewsDto = res.pop() as NewsDto
+    Log.info('check getUserNews', `get news with id${id}:`, toPop)
+    this.currentUserNews = this.currentUserNews.filter(news => news.id !== id)
+    Log.info('check getUserNews', `check currnet user news list:`, this.currentUserNews)
   }
 
   checkCurrentUserNews() {
@@ -152,17 +168,27 @@ export default struct NewsItem {
           .width(25)
           .onClick(async () => {
             this.isStared = !this.isStared
-            this.saveNews(this.currentUserEmail, this.item.id)
-            Log.info(Tag, 'add email:', this.currentUserEmail)
-            Log.info(Tag, 'add news id:', this.item.id)
-            promptAction.showToast({
-              message: "News saved!"
-            })
-            let res2 = await this.pushNews(this.item)
-            Log.info(Tag, 'test push result: ', res2)
-            await this.getUserAllNews()
-            this.getUserNews(this.item.id)
-            this.checkCurrentUserNews()
+            if (this.isStared == true) {
+              this.saveNews(this.currentUserEmail, this.item.id)
+              Log.info(Tag, 'add email:', this.currentUserEmail)
+              Log.info(Tag, 'add news id:', this.item.id)
+              promptAction.showToast({
+                message: "News saved!"
+              })
+              let res2 = await this.pushNews(this.item)
+              Log.info(Tag, 'test push result: ', res2)
+              await this.getUserAllNews()
+              this.getUserNews(this.item.id)
+              this.checkCurrentUserNews()
+            } else {
+              this.removeNews(this.currentUserEmail, this.item.id)
+              await this.getUserAllNews()
+              this.popUserNews(this.item.id)
+              this.checkCurrentUserNews()
+              promptAction.showToast({
+                message: "News removed!"
+              })
+            }
           })
         Image($r('app.media.icon_link'))
           .width(20)
