@@ -19,6 +19,7 @@ let context = getContext(this) as common.UIAbilityContext;
 
 interface RouterParams {
   email: string
+  username: string
 }
 
 @Entry
@@ -231,6 +232,23 @@ struct Index {
       } else {
         Stack() {
           Column() {
+            Row() {
+              Column() {
+                Text(`Hi! ${this.email}`)
+                  .fontSize(20)
+                  .fontWeight(500)
+                  .fontColor(this.txtColor)
+              }
+              .width('80%')
+              .height('100%')
+              .justifyContent(FlexAlign.Center)
+              .alignItems(HorizontalAlign.Start)
+              .margin({ left: 20 })
+            }
+            .width('100%')
+            .height('7%')
+            .backgroundColor(this.cardColor)
+
             Row({ space: 10 }) {
               List() {
                 ForEach(this.categories, (item: string) => {
@@ -288,7 +306,7 @@ struct Index {
               .alignItems(HorizontalAlign.Center)
             }
             .width('100%')
-            .height('92%')
+            .height('85%')
             .align(Alignment.Top)
             .zIndex(0)
           }

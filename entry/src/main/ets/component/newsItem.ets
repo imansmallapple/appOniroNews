@@ -33,7 +33,6 @@ export default struct NewsItem {
     // this.savedNewsId.forEach((id: string) => {
     //   this.getUserNews(id)
     // })
-    // todo: Check current item is saved in user's star list or not
     this.isStared = await this.checkUserNewsExist(this.item.id)
   }
 

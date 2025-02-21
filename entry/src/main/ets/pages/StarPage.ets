@@ -5,6 +5,8 @@ import { NewsManager } from '../methods/news'
 import Log from '../utils/Log'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { EmptyComponent } from '../component/components'
+import NewsItem from '../component/newsItem'
+import { News } from '../model/news'
 import Storage from '../preference/Storage'
 
 interface RouterParams {
@@ -29,6 +31,9 @@ struct StarPage {
   @State savedNewsId: string[] = []
   @State SavedNews: NewsDto[] = []
   private scroller: Scroller = new Scroller()
+  //Preferences
+  private localStorage = new Storage()
+  @State style: string[] = []
   @State bgColor: string = '#ffffffff'
   @State txtColor: string = '#ff000000'
   @State cardColor: string = '#ffe4f3f3'
@@ -40,7 +45,6 @@ struct StarPage {
   @State searchBarBorderColor: string = '#46000000'
   @State topBarBgColor: string = '#ffe4f3f3'
   @State isBlack: boolean = false
-  private localStorage = new Storage()
 
   async getUserAllNews(): Promise<NewsDto[]> {
     try {
@@ -61,11 +65,12 @@ struct StarPage {
     this.savedNewsId = res.savedNewsId
     this.newsDao = res.newsDao
     this.SavedNews = res.currentUserNews
-    // Log.info('Test Star', 'About To Appear')
-    // Log.info('Test Star', res)
-    // Log.info('Test Star saved news ids: ', this.savedNewsId)
-    // Log.info('Test Star this.SavedNews: ', this.SavedNews)
+    Log.info('Test Star', 'About To Appear')
+    Log.info('Test Star', res)
+    Log.info('Test Star saved news ids: ', this.savedNewsId)
+    Log.info('Test Star this.SavedNews: ', this.SavedNews)
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
+
     if (temp.length !== 0) {
       this.bgColor = temp[temp.length-10]
       this.txtColor = temp[temp.length-9]
@@ -92,6 +97,20 @@ struct StarPage {
     Log.info(Tag, 'user all news:', JSON.stringify(res))
   }
 
+  dtoToNews(dto: NewsDto): News {
+    return new News(
+      dto.id,
+      dto.url,
+      dto.language,
+      dto.title,
+      dto.image,
+      dto.published,
+      dto.description,
+      dto.category,
+      dto.author
+    )
+  }
+
   build() {
     Column() {
       if (this.SavedNews.length == 0) {
@@ -100,56 +119,67 @@ struct StarPage {
         Scroll() {
           Column() {
             List({ scroller: this.scroller }) {
-              ForEach(this.SavedNews, (item: NewsDto) => {
+              ForEach(this.SavedNews, (dto: NewsDto) => {
                 ListItem() {
-                  Column() {
-                    Column() {
-                      Column() {
-                        Image(item.image)
-                          .width('100%')
-                          .objectFit(ImageFit.Contain)
-                          .borderRadius({ topLeft: 10, topRight: 10 })
-                        Row() {
-                          Text(item.title)
-                            .fontSize(20)
-                            .fontWeight(700)
-                            .fontColor(this.txtColor)
-                        }
-                        .width('100%')
-                        .padding(10)
-                      }
-                      .onClick(() => {
-                        router.pushUrl({
-                          url: "pages/NewsDetail",
-                          params: item
-                        })
-                      })
-                    }
-                    .width('100%')
-
-                    Row({ space: 10 }) {
-                      Text(item.author)
-                        .fontSize(15)
-                        .fontWeight(FontWeight.Normal)
-                        .fontColor(this.authorTimeColor)
-                        .padding(10)
-                    }
-                    .justifyContent(FlexAlign.Start)
-                    .width('100%')
-
-                    // Description
-                    Row() {
-                      Text(item.description)
-                        .width('100%')
-                        .fontColor(this.txtColor)
-                    }
-                    .padding(10)
-                    .width('100%')
-                    .justifyContent(FlexAlign.Start)
-                    .alignItems(VerticalAlign.Center)
-                    .margin({ left: 10 })
-                  }
-                  .width('100%')
+                  NewsItem({
+                    item: this.dtoToNews(dto),
+                    newsManager: this.newsManager,
+                    accountNewsManager: this.accountNewsManager,
+                    currentUserEmail: this.email,
+                    savedNewsId: $savedNewsId,
+                    newsDao: this.newsDao,
+                    currentUserNews: $SavedNews,
+                    txtColor: $txtColor,
+                    authorTimeColor: $authorTimeColor
+                  })
+                  // Column() {
+                  //   Column() {
+                  //     Column() {
+                  //       Image(item.image)
+                  //         .width('100%')
+                  //         .objectFit(ImageFit.Contain)
+                  //         .borderRadius({ topLeft: 10, topRight: 10 })
+                  //       Row() {
+                  //         Text(item.title)
+                  //           .fontSize(20)
+                  //           .fontWeight(700)
+                  //           .fontColor(this.txtColor)
+                  //       }
+                  //       .width('100%')
+                  //       .padding(10)
+                  //     }
+                  //     .onClick(() => {
+                  //       router.pushUrl({
+                  //         url: "pages/NewsDetail",
+                  //         params: item
+                  //       })
+                  //     })
+                  //   }
+                  //   .width('100%')
+                  //
+                  //   Row({ space: 10 }) {
+                  //     Text(item.author)
+                  //       .fontSize(15)
+                  //       .fontWeight(FontWeight.Normal)
+                  //       .fontColor(this.authorTimeColor)
+                  //       .padding(10)
+                  //   }
+                  //   .justifyContent(FlexAlign.Start)
+                  //   .width('100%')
+                  //
+                  //   // Description
+                  //   Row() {
+                  //     Text(item.description)
+                  //       .width('100%')
+                  //       .fontColor(this.txtColor)
+                  //   }
+                  //   .padding(10)
+                  //   .width('100%')
+                  //   .justifyContent(FlexAlign.Start)
+                  //   .alignItems(VerticalAlign.Center)
+                  //   .margin({ left: 10 })
+                  // }
+                  // .width('100%')
                 }
                 .margin({ bottom: 40 })
                 .backgroundColor(this.cardColor)
@@ -162,7 +192,7 @@ struct StarPage {
           .alignItems(HorizontalAlign.Center)
         }
         .width('100%')
-        .height('92%')
+        .height('100%')
         .align(Alignment.Top)
         .zIndex(0)
       }
