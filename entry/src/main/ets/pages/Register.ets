@@ -130,8 +130,11 @@ struct Register {
           .color(Color.Black)
           .strokeWidth(1)
         if (!this.isInputDataLegal) {
-          Text('data ileagal')
-            .fontColor(Color.Red)
+          Column() {
+            Text('Username at least 6 letters long, email at least 6 letters long and must have @ and .com like ending, ' +
+              'password at least 8 letters long and must have capital and small letters and numbers')
+              .fontColor(Color.Red)
+          }
         }
 
         Button('Register')
@@ -160,6 +163,10 @@ struct Register {
                 })
                 router.back()
               }
+            } else {
+              promptAction.showToast({
+                message: "Input data invalid!"
+              })
             }
           })
       }
