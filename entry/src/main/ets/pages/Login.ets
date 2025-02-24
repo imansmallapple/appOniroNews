@@ -17,10 +17,10 @@ struct Login {
 
       Column() {
         Row({ space: 20 }) {
-          Image($r('app.media.app_icon'))
+          Image($r('app.media.icon_news'))
             .width(50)
 
-          Text('App Title')
+          Text($r('app.string.Oniro_news'))
             .fontSize(30)
             .fontWeight(700)
         }
