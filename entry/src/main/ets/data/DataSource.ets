@@ -1,8 +1,6 @@
 import http from '@ohos.net.http'
-import abilityTest from '../../../ohosTest/ets/test/Ability.test'
 import { NewsResponse } from '../model/news'
 import { BusinessError } from '@ohos.base'
-import hilog from '@ohos.hilog'
 import { CategoryResponse } from '../model/categories'
 
 const BaseUrl = 'https://api.currentsapi.services'
