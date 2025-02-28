@@ -2,6 +2,7 @@ import router from '@ohos.router'
 import { AccountManager } from '../viewModel/account'
 import common from '@ohos.app.ability.common';
 import promptAction from '@ohos.promptAction';
+import Storage from '../preference/Storage'
 
 let context = getContext(this) as common.UIAbilityContext
 
@@ -11,6 +12,28 @@ struct Login {
   @State email: string = ''
   @State password: string = ''
   private accountManager: AccountManager = new AccountManager(context)
+  //Credentials
+  private localStorage = new Storage()
+  @State savedEmail: string = ''
+  @State savedPwd: string = ''
+  @State credential: string[] = []
+
+  async aboutToAppear(): Promise<void> {
+    let temp: string[] = (await this.localStorage.getStyle('credential')) as string[]
+    if (temp.length !== 0) {
+      this.savedEmail = temp[temp.length-2]
+      this.savedPwd = temp[temp.length-1]
+      router.pushUrl({
+        url: 'pages/Index',
+        params: {
+          email: this.savedEmail
+        }
+      })
+      promptAction.showToast({
+        message:"Auto logged in!"
+      })
+    }
+  }
 
   build() {
     Column({ space: 50 }) {
@@ -76,6 +99,12 @@ struct Login {
             //to do: login
             let res = await this.accountManager.login(this.email, this.password)
             if (res == true) {
+
+              // todo: Save user credentials into preferences
+              this.credential.push(this.email)
+              this.credential.push(this.password)
+              this.localStorage.setStyle('credential', this.credential)
+
               promptAction.showToast({
                 message: "Login succeed!"
               })
