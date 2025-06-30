@@ -1,4 +1,4 @@
-import util from '@ohos.util';
+import { util } from '@kit.ArkTS';
 import Log from './Log';
 
 const base64 = new util.Base64Helper()
@@ -16,7 +16,8 @@ export function passwordDecoder(encodeStr: string): string {
   if (arr && arr.length > 0) {
     try {
       let textDecode = util.TextDecoder.create('utf-8')
-      str = textDecode.decodeWithStream(arr)
+      str = textDecode.decodeToString(arr)
+      // str = textDecode.decodeWithStream(arr)
     } catch (err) {
       Log.error('String Utils', `uint8ArrayToString = ${err}`)
     }

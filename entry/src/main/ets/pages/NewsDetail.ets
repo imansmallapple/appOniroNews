@@ -1,6 +1,4 @@
-import webview from '@ohos.web.webview'
-import router from '@ohos.router'
-import hilog from '@ohos.hilog'
+import { webview } from '@kit.ArkWeb';
 import { News } from '../model/news'
 
 @Entry
@@ -10,8 +8,8 @@ struct NewsDetail {
   @State localUrl: string = ''
 
   aboutToAppear(): void {
-    let res: News = router.getParams() as News
-    // hilog.info(0x00, 'localUrl', JSON.stringify(res))
+
+    let res: News = this.getUIContext().getRouter().getParams() as News
     this.localUrl = res.url
   }
 

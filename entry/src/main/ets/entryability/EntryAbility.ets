@@ -1,10 +1,8 @@
-import AbilityConstant from '@ohos.app.ability.AbilityConstant';
-import hilog from '@ohos.hilog';
-import UIAbility from '@ohos.app.ability.UIAbility';
-import Want from '@ohos.app.ability.Want';
-import window from '@ohos.window';
-import preferences from '@ohos.data.preferences';
-import util from '@ohos.util';
+import { AbilityConstant, UIAbility, Want } from '@kit.AbilityKit';
+import { hilog } from '@kit.PerformanceAnalysisKit';
+import { window } from '@kit.ArkUI';
+import { preferences } from '@kit.ArkData';
+import { util } from '@kit.ArkTS';
 import Log from '../utils/Log';
 let dataPreferences: preferences.Preferences | null = null;
 let Tag: string = 'onWindowStageCreate'

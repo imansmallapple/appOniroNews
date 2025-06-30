@@ -1,6 +1,6 @@
-import relationalStore from '@ohos.data.relationalStore'
+import { relationalStore } from '@kit.ArkData'
 import { BaseRelationalDatabase } from '../database/db/BaseRelationalDB'
-import { Context } from '@ohos.abilityAccessCtrl'
+import { Context } from '@kit.AbilityKit'
 import { DBConfig } from './config/DbConfig'
 import Log from '../utils/Log'
 

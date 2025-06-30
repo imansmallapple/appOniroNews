@@ -3,7 +3,7 @@ import { AccountNewsDto } from '../dto/AccountNews/AccountNewsDto'
 import { AccountNewsEntity } from '../entity/AccountNewsEntity'
 import { AccountNewsMapper } from '../mapper/AccountNewsMapper'
 import { IAccountNewsDao } from './IAccountNewsDao'
-import relationalStore from '@ohos.data.relationalStore'
+import { relationalStore } from '@kit.ArkData'
 
 export class AccountNewsDaoRdb implements IAccountNewsDao {
   private db: BaseRelationalDatabase

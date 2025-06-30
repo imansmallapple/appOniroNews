@@ -1,10 +1,8 @@
 import { News } from '../model/news'
 import { timeFormatModify } from '../utils/timeUtil'
-import router from '@ohos.router'
 import { AccountNewsManager } from '../viewModel/accountNews'
 import { NewsManager } from '../viewModel/news'
 import { AccountNewsDto } from '../database/dto/AccountNews/AccountNewsDto'
-import promptAction from '@ohos.promptAction'
 import Log from '../utils/Log'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { NewsDto } from '../database/dto/News/NewsDto'
@@ -44,7 +42,7 @@ export default struct NewsItem {
     Log.info(Tag, 'savedNewsId:', JSON.stringify(this.savedNewsId))
   }
 
-  async removeNews(email: string, id: string){
+  async removeNews(email: string, id: string) {
     this.accountNewsManager.removeUserNews(email, id)
     let res = await this.accountNewsManager.getUserNews(email)
     Log.info('check getUserNews', 'user all news id:', JSON.stringify(res))
@@ -57,8 +55,7 @@ export default struct NewsItem {
       const res: NewsDto[] = await this.newsDao.getAllNews()
       Log.info(Tag, 'User all news:', res)
       return res
-    }
-    catch (error) {
+    } catch (error) {
       Log.error(Tag, 'error: ', JSON.stringify(error))
       return []
     }
@@ -91,7 +88,7 @@ export default struct NewsItem {
   }
 
   checkCurrentUserNews() {
-    Log.info(Tag,'checkCurrentUserNews: ', this.currentUserNews)
+    Log.info(Tag, 'checkCurrentUserNews: ', this.currentUserNews)
   }
 
   async pushNews(item: News): Promise<boolean> {
@@ -136,7 +133,7 @@ export default struct NewsItem {
           .padding(10)
         }
         .onClick(() => {
-          router.pushUrl({
+          this.getUIContext().getRouter().pushUrl({
             url: "pages/NewsDetail",
             params: this.item
           })
@@ -171,7 +168,7 @@ export default struct NewsItem {
               this.saveNews(this.currentUserEmail, this.item.id)
               Log.info(Tag, 'add email:', this.currentUserEmail)
               Log.info(Tag, 'add news id:', this.item.id)
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: "News saved!"
               })
               let res2 = await this.pushNews(this.item)
@@ -184,7 +181,7 @@ export default struct NewsItem {
               await this.getUserAllNews()
               this.popUserNews(this.item.id)
               this.checkCurrentUserNews()
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: "News removed!"
               })
             }

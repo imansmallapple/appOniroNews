@@ -1,9 +1,6 @@
 import { DataSource } from '../data/DataSource'
 import { News, NewsResponse } from '../model/news'
-import router from '@ohos.router'
-import { timeFormatModify } from '../utils/timeUtil'
 import Log from '../utils/Log'
-import { Callback } from '@ohos.base'
 import { LoadComponent, EmptyComponent } from '../view/components'
 import { spaceToPlus } from '../utils/searchUtil'
 import Storage from '../preference/Storage'
@@ -12,7 +9,7 @@ import { AccountNewsManager } from '../viewModel/accountNews'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { NewsDto } from '../database/dto/News/NewsDto'
 import { OniroNewsDB } from '../database/OniroNewsDB'
-import common from '@ohos.app.ability.common'
+import { common } from '@kit.AbilityKit';
 
 interface RouterParams {
   currentUserEmail: string,
@@ -21,7 +18,6 @@ interface RouterParams {
   txtColor: string,
   authorTimeColor: string
 }
-let context = getContext(this) as common.UIAbilityContext;
 
 @Entry
 @Component
@@ -32,6 +28,7 @@ struct SearchPage {
   @State @Watch('checkLoading') searchedNews: News[] = []
   private searchController: SearchController = new SearchController()
   private source = new DataSource()
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
   private searchResultCategory: string[] = ['news', 'articles', 'discussion']
   // Category
   @State newsCount: number = 0
@@ -68,7 +65,7 @@ struct SearchPage {
   @State topBarBgColor: string = '#ffe4f3f3'
   @State isBlack: boolean = false
   //router params
-  private accountNewsManager: AccountNewsManager = new AccountNewsManager(context)
+  private accountNewsManager: AccountNewsManager = new AccountNewsManager(this.context)
   private currentUserEmail!: string
   @State savedNewsId: string[] = []
   private newsDao!: NewsDaoRdb
@@ -82,9 +79,9 @@ struct SearchPage {
 
   async aboutToAppear(): Promise<void> {
     Log.info('onpageshow abouttoappear', this.currentUserNews)
-    this.dbInstance = await OniroNewsDB.getInstance(context)
+    this.dbInstance = await OniroNewsDB.getInstance(this.context)
     this.newsDao = new NewsDaoRdb(this.dbInstance)
-    let res: RouterParams = router.getParams() as RouterParams
+    let res: RouterParams = this.getUIContext().getRouter().getParams() as RouterParams
     this.currentUserEmail = res.currentUserEmail
     this.savedNewsId = res.savedNewsId
     this.currentUserNews = res.currentUserNews
@@ -186,7 +183,7 @@ struct SearchPage {
           }
         })
         .onClick(() => {
-          router.back()
+          this.getUIContext().getRouter().back()
         })
         .backgroundColor(this.backButtonColor)
 
@@ -355,71 +352,6 @@ struct SearchPage {
                       txtColor: $txtColor,
                       authorTimeColor: $authorTimeColor
                     })
-                    // Column() {
-                    //   Column() {
-                    //     Column() {
-                    //       Image(item.image)
-                    //         .width('100%')
-                    //         .objectFit(ImageFit.Contain)
-                    //         .borderRadius({ topLeft: 10, topRight: 10 })
-                    //       Row() {
-                    //         Text(item.title)
-                    //           .fontSize(20)
-                    //           .fontWeight(700)
-                    //           .fontColor(this.txtColor)
-                    //       }
-                    //       .width('100%')
-                    //       .padding(10)
-                    //     }
-                    //     .onClick(() => {
-                    //       router.pushUrl({
-                    //         url: "pages/NewsDetail",
-                    //         params: item
-                    //       })
-                    //     })
-                    //   }
-                    //   .width('100%')
-                    //
-                    //   Row({ space: 10 }) {
-                    //     Text(item.author)
-                    //       .fontSize(15)
-                    //       .fontWeight(FontWeight.Normal)
-                    //       .padding(10)
-                    //       .fontColor(this.authorTimeColor)
-                    //   }
-                    //   .justifyContent(FlexAlign.Start)
-                    //   .width('100%')
-                    //
-                    //   // Description
-                    //   Row() {
-                    //     Text(item.description)
-                    //       .width('100%')
-                    //       .fontColor(this.txtColor)
-                    //   }
-                    //   .padding(10)
-                    //
-                    //   Row({ space: 10 }) {
-                    //     Image($r('app.media.icon_stared'))
-                    //       .width(25)
-                    //     Image($r('app.media.icon_link'))
-                    //       .width(20)
-                    //
-                    //     Row() {
-                    //       Text(timeFormatModify(item.published))
-                    //         .fontSize(15)
-                    //         .fontColor(this.authorTimeColor)
-                    //     }
-                    //     .layoutWeight(1)
-                    //     .justifyContent(FlexAlign.End)
-                    //     .padding(10)
-                    //   }
-                    //   .width('100%')
-                    //   .height('7%')
-                    //   .justifyContent(FlexAlign.Start)
-                    //   .alignItems(VerticalAlign.Center)
-                    //   .margin({ left: 10 })
-                    // }
-                    // .width('100%')
                   }
                   .margin({ bottom: 40 })
                   .backgroundColor(this.cardColor)

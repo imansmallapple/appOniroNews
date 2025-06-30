@@ -1,11 +1,9 @@
 import { AccountNewsManager } from '../viewModel/accountNews'
-import router from '@ohos.router'
 import { NewsDto } from '../database/dto/News/NewsDto'
 import { NewsManager } from '../viewModel/news'
 import Log from '../utils/Log'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { EmptyComponent } from '../view/components'
-import NewsItem from '../view/newsItem'
 import { News } from '../model/news'
 import Storage from '../preference/Storage'
 
@@ -25,7 +23,6 @@ const Tag: string = 'Test saved news'
 struct StarPage {
   private email: string = ''
   private accountNewsManager!: AccountNewsManager
-  private newsManager !: NewsManager
   private newsDao !: NewsDaoRdb
   @State message: string = ''
   @State savedNewsId: string[] = []
@@ -59,7 +56,7 @@ struct StarPage {
   }
 
   async aboutToAppear(): Promise<void> {
-    let res: RouterParams = router.getParams() as RouterParams
+    let res: RouterParams = this.getUIContext().getRouter().getParams() as RouterParams
     this.email = res.email
     this.accountNewsManager = res.accountNewsManager
     this.savedNewsId = res.savedNewsId
@@ -121,17 +118,6 @@ struct StarPage {
             List({ scroller: this.scroller }) {
               ForEach(this.currentUserNews, (item: NewsDto) => {
                 ListItem() {
-                  // NewsItem({
-                  //   item: this.dtoToNews(dto),
-                  //   newsManager: this.newsManager,
-                  //   accountNewsManager: this.accountNewsManager,
-                  //   currentUserEmail: this.email,
-                  //   savedNewsId: $savedNewsId,
-                  //   newsDao: this.newsDao,
-                  //   currentUserNews: $currentUserNews,
-                  //   txtColor: $txtColor,
-                  //   authorTimeColor: $authorTimeColor
-                  // })
                   Column() {
                     Column() {
                       Column() {
@@ -149,7 +135,7 @@ struct StarPage {
                         .padding(10)
                       }
                       .onClick(() => {
-                        router.pushUrl({
+                        this.getUIContext().getRouter().pushUrl({
                           url: "pages/NewsDetail",
                           params: item
                         })

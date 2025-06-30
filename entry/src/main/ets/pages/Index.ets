@@ -1,10 +1,9 @@
 import { DataSource } from '../data/DataSource'
 import { NewsResponse, News } from '../model/news'
 import { CategoryResponse } from '../model/categories'
-import router from '@ohos.router'
 import { HttpErrorComponent, LoadComponent } from '../view/components'
 import Storage from '../preference/Storage'
-import common from '@ohos.app.ability.common'
+import { common } from '@kit.AbilityKit';
 import NewsItem from '../view/newsItem'
 import { NewsManager } from '../viewModel/news'
 import { AccountNewsManager } from '../viewModel/accountNews'
@@ -13,7 +12,6 @@ import { OniroNewsDB } from '../database/OniroNewsDB'
 import { NewsDaoRdb } from '../database/dao/NewsDaoRdb'
 import { NewsDto } from '../database/dto/News/NewsDto'
 
-let context = getContext(this) as common.UIAbilityContext;
 
 interface RouterParams {
   email: string
@@ -30,6 +28,7 @@ struct Index {
   @State httpCode: number = 0
   @State retryButtonColor: string = ''
   private source = new DataSource()
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
   // List
   private scroller: Scroller = new Scroller()
   //Preferences
@@ -49,8 +48,8 @@ struct Index {
   // auth
   @State isUserExist: boolean = false
   // database
-  private newsManager: NewsManager = new NewsManager(context)
-  private accountNewsManager: AccountNewsManager = new AccountNewsManager(context)
+  private newsManager: NewsManager = new NewsManager(this.context)
+  private accountNewsManager: AccountNewsManager = new AccountNewsManager(this.context)
   private dbInstance!: OniroNewsDB
   private newsDao!: NewsDaoRdb
   // user info
@@ -93,11 +92,11 @@ struct Index {
   }
 
   async aboutToAppear(): Promise<void> {
-    this.dbInstance = await OniroNewsDB.getInstance(context)
+    this.dbInstance = await OniroNewsDB.getInstance(this.context)
     this.newsDao = new NewsDaoRdb(this.dbInstance)
     Log.info('test render', this.dbInstance, this.newsDao)
     Log.info('saved news id', this.savedNewsId)
-    let res: RouterParams = router.getParams() as RouterParams
+    let res: RouterParams = this.getUIContext().getRouter().getParams() as RouterParams
     this.email = res.email
     let temp: string[] = (await this.localStorage.getStyle('style')) as string[]
 
@@ -188,8 +187,7 @@ struct Index {
         .height('100%')
         .justifyContent(FlexAlign.Center)
         .alignItems(HorizontalAlign.Center)
-      }
-      else {
+      } else {
         Stack() {
           HttpErrorComponent()
           Column() {
@@ -236,8 +234,7 @@ struct Index {
         .height('100%')
         .align(Alignment.Center)
       }
-    }
-    else {
+    } else {
       if (this.isLoading) {
         Column() {
           LoadComponent()
@@ -383,7 +380,7 @@ struct Index {
               }
             })
             this.floatIconBuilder($r('app.media.icon_stared'), () => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/StarPage',
                 params: {
                   email: this.email,
@@ -396,7 +393,7 @@ struct Index {
               })
             })
             this.floatIconBuilder($r('app.media.icon_search'), () => {
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/SearchPage',
                 params: {
                   currentUserEmail: this.email,

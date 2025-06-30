@@ -1,10 +1,6 @@
-import router from '@ohos.router'
 import { AccountManager } from '../viewModel/account'
-import common from '@ohos.app.ability.common';
 import Log from '../utils/Log';
-import promptAction from '@ohos.promptAction';
-
-let context = getContext(this) as common.UIAbilityContext;
+import { common } from '@kit.AbilityKit';
 
 @Entry
 @Component
@@ -14,18 +10,12 @@ struct Register {
   @State password: string = ''
   @State repeat: string = ''
   @State isUserExist: boolean = false
-  private accountManager: AccountManager = new AccountManager(context)
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
+  private accountManager: AccountManager = new AccountManager(this.context)
   @State isInputDataLegal: boolean = true
 
   build() {
     Column({ space: 50 }) {
-      // Image($r('app.media.icon_back'))
-      //   .width(25)
-      //   .height(25)
-      //   .alignSelf(ItemAlign.Start)
-      //   .onClick(() => {
-      //     router.back()
-      //   })
       Column() {
         Row({ space: 20 }) {
           Image($r('app.media.icon_news'))
@@ -158,13 +148,13 @@ struct Register {
               Log.info('Test RDB', 'register result:', isRegistered)
 
               if (isRegistered == true) {
-                promptAction.showToast({
+                this.getUIContext().getPromptAction().showToast({
                   message: "Registration succeed!"
                 })
-                router.back()
+                this.getUIContext().getRouter().back()
               }
             } else {
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: "Input data invalid!"
               })
             }

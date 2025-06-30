@@ -1,17 +1,14 @@
-import router from '@ohos.router'
 import { AccountManager } from '../viewModel/account'
-import common from '@ohos.app.ability.common';
-import promptAction from '@ohos.promptAction';
+import { common } from '@kit.AbilityKit';
 import Storage from '../preference/Storage'
-
-let context = getContext(this) as common.UIAbilityContext
 
 @Entry
 @Component
 struct Login {
   @State email: string = ''
   @State password: string = ''
-  private accountManager: AccountManager = new AccountManager(context)
+  private context: common.UIAbilityContext = this.getUIContext().getHostContext() as common.UIAbilityContext;
+  private accountManager: AccountManager = new AccountManager(this.context)
   //Credentials
   private localStorage = new Storage()
   @State savedEmail: string = ''
@@ -23,14 +20,14 @@ struct Login {
     if (temp.length !== 0) {
       this.savedEmail = temp[temp.length-2]
       this.savedPwd = temp[temp.length-1]
-      router.pushUrl({
+      this.getUIContext().getRouter().pushUrl({
         url: 'pages/Index',
         params: {
           email: this.savedEmail
         }
       })
-      promptAction.showToast({
-        message:"Auto logged in!"
+      this.getUIContext().getPromptAction().showToast({
+        message: "Auto logged in!"
       })
     }
   }
@@ -105,17 +102,17 @@ struct Login {
               this.credential.push(this.password)
               this.localStorage.setStyle('credential', this.credential)
 
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: "Login succeed!"
               })
-              router.pushUrl({
+              this.getUIContext().getRouter().pushUrl({
                 url: 'pages/Index',
                 params: {
                   email: this.email
                 }
               })
             } else {
-              promptAction.showToast({
+              this.getUIContext().getPromptAction().showToast({
                 message: "Wrong email or password!"
               })
             }
@@ -138,7 +135,7 @@ struct Login {
       .justifyContent(FlexAlign.Center)
       .width('100%')
       .onClick(() => {
-        router.pushUrl({
+        this.getUIContext().getRouter().pushUrl({
           url: 'pages/Register'
         })
       })

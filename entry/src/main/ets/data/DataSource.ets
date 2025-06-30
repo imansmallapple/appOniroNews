@@ -1,6 +1,6 @@
-import http from '@ohos.net.http'
+import { http } from '@kit.NetworkKit';
 import { NewsResponse } from '../model/news'
-import { BusinessError } from '@ohos.base'
+import { BusinessError } from '@kit.BasicServicesKit'
 import { CategoryResponse } from '../model/categories'
 
 const BaseUrl = 'https://api.currentsapi.services'
@@ -16,7 +16,8 @@ export class DataSource {
   async getLatestNews(language: string, category?: string): Promise<NewsResponse> {
     return new Promise<NewsResponse>((resolve, reject) => {
       let httpRequest = http.createHttp()
-      httpRequest.request(LatestNewsUrl + `?language=${language}&apiKey=${key}` + (category ? `&category=${category}` : ''),
+      httpRequest.request(LatestNewsUrl + `?language=${language}&apiKey=${key}` +
+        (category ? `&category=${category}` : ''),
         {
           method: http.RequestMethod.GET,
           readTimeout: 30000,
@@ -29,8 +30,7 @@ export class DataSource {
               resolve(responseData)
             } catch (error) {
               reject('Failed to parse response data')
-            }
-            finally {
+            } finally {
               httpRequest.off('headersReceive');
               httpRequest.destroy();
             }
@@ -57,8 +57,7 @@ export class DataSource {
               resolve(responseData)
             } catch (error) {
               reject('Failed to parse response data')
-            }
-            finally {
+            } finally {
               httpRequest.off('headersReceive');
               httpRequest.destroy();
             }
@@ -85,8 +84,7 @@ export class DataSource {
               resolve(responseData)
             } catch (error) {
               reject('Failed to parse response data')
-            }
-            finally {
+            } finally {
               httpRequest.off('headersReceive');
               httpRequest.destroy();
             }

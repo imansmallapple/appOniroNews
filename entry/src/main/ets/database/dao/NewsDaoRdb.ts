@@ -1,6 +1,6 @@
 import { INewsDao } from './INewsDao'
 import { BaseRelationalDatabase } from '../db/BaseRelationalDB'
-import relationalStore from '@ohos.data.relationalStore'
+import { relationalStore } from '@kit.ArkData'
 import { NewsDto } from '../dto/News/NewsDto'
 import { NewsEntity } from '../entity/NewsEntity'
 import { NewsMapper } from '../mapper/NewsMapper'

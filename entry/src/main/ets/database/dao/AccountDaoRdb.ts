@@ -1,6 +1,6 @@
 import { IAccountDao } from './IAccountDao'
 import { BaseRelationalDatabase } from '../db/BaseRelationalDB'
-import relationalStore from '@ohos.data.relationalStore'
+import { relationalStore } from '@kit.ArkData'
 import { NewUserDto } from '../dto/Account/NewUserDto'
 import { AccountEntity } from '../entity/AccountEntity'
 import { AccountMapper } from '../mapper/AccountMapper'
