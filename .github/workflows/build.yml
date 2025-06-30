@@ -10,59 +10,23 @@ on:
 
 jobs:
   build:
-    name: Build and Verify Application
-    runs-on: macos-latest
-
+    runs-on: oniro-runner
+    container:
+      image: francescopham/oniro-builder:5.1.0
+    env:
+      HOME: /root
     steps:
-      - name: Checkout Repository
+      - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Install tree command
-        run: brew install tree
-
-      - name: Set up tools and dependencies
-        uses: eclipse-oniro4openharmony/oh-app-action@main
-        
-      - name: Verify Installation
+      - name: Build and sign app
         run: |
-          echo "=== Environment Variables ==="
-          echo "PATH: $PATH"
-          echo "OHOS_BASE_SDK_HOME: $OHOS_BASE_SDK_HOME"
-          echo "CMD_PATH: $CMD_PATH"
+          cd "$GITHUB_WORKSPACE"
+          onirobuilder sign
+          onirobuilder build
 
-          echo "=== OHPM Installation ==="
-          which ohpm
-          ohpm -v
-
-          echo "=== Hvigor Installation ==="
-          which hvigorw
-          hvigorw --version
-
-          echo "=== Installation Directories ==="
-          echo "Command-line Tools:"
-          tree -L 3 $CMD_PATH
-
-          echo "OpenHarmony SDK:"
-          tree -L 3 $OHOS_BASE_SDK_HOME
-
-          echo "=== Node.js Version ==="
-          node --version
-          npm --version
-
-          echo "=== NPM Configuration ==="
-          cat $HOME/.npmrc
-
-      - name: Install OpenHarmony Dependencies
-        run: ohpm install --all
-
-      - name: Initialize and Build
-        run: |
-          hvigorw --version --accept-license
-          hvigorw clean --no-parallel --no-daemon
-          hvigorw assembleHap --mode module -p product=default --stacktrace --no-parallel --no-daemon
-
-      - name: Upload Build Artifacts
+      - name: Upload built sample_app
         uses: actions/upload-artifact@v4
         with:
           name: HAP packages
-          path: ./entry/build/default/outputs/default
+          path: entry/build/default/outputs/default

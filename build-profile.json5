@@ -1,19 +1,6 @@
 {
   "app": {
-    "signingConfigs": [
-      {
-        "name": "default",
-        "material": {
-          "certpath": "C:/Users/chens/.ohos/config/openharmony/default_appOniroNews_9rZgLZA93UqyWUIW8LRd__hV8zlGvKO0asJ3U2cRE2s=.cer",
-          "keyAlias": "debugKey",
-          "keyPassword": "0000001ACA194F6C5AD9B2E4A883DC12F84414063E458D2DCB130B11DE8168C6DAF272F749B81DAEE6AE",
-          "profile": "C:/Users/chens/.ohos/config/openharmony/default_appOniroNews_9rZgLZA93UqyWUIW8LRd__hV8zlGvKO0asJ3U2cRE2s=.p7b",
-          "signAlg": "SHA256withECDSA",
-          "storeFile": "C:/Users/chens/.ohos/config/openharmony/default_appOniroNews_9rZgLZA93UqyWUIW8LRd__hV8zlGvKO0asJ3U2cRE2s=.p12",
-          "storePassword": "0000001A38E54693F33DC4A6C1ED9C3BDE5E9DF624B3AE89B1ED73572AAC59EFF9C485AA6C3D996969E7"
-        }
-      }
-    ],
+    "signingConfigs": [],
     "products": [
       {
         "name": "default",
